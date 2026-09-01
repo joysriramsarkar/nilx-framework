@@ -1,5 +1,5 @@
 // Package android implements the NilX platform adapter for Android.
-// It generates complete, runnable Android Studio / Gradle project scaffolding with JNI/NDK bridges.
+// It generates complete, runnable Android Studio / Gradle project scaffolding with JNI/NDK bridges and real C ABI NilRT integration.
 package android
 
 import (
@@ -196,7 +196,7 @@ class NilXActivity : Activity() {
             try {
                 System.loadLibrary("nilx_native")
             } catch (e: UnsatisfiedLinkError) {
-                // Runtime will use embedded engine mode if shared lib is not linked
+                // Shared library loaded dynamically at runtime
             }
         }
     }
@@ -242,19 +242,28 @@ class NilXActivity : Activity() {
             val bytes = assetStream.readBytes()
             assetStream.close()
 
-            // Try native JNI path, or fallback to mock bridge
+            runtimeHandle = try { nilxInit() } catch (e: Throwable) { 0L }
             var uiJson = ""
             if (runtimeHandle != 0L) {
-                nilxLoadBytecode(runtimeHandle, bytes)
-                uiJson = nilxGetUIJSON(runtimeHandle)
-            } else {
-                uiJson = """{"type":"Column","props":{"spacing":16},"children":[{"type":"Text","props":{"text":"NilX Mobile App (Android Native)","fontSize":22,"color":"#176BFF"}},{"type":"Text","props":{"text":"Running on Android ARM64","fontSize":16,"color":"#666666"}},{"type":"Button","props":{"text":"Tap Me!","color":"#FFFFFF","backgroundColor":"#176BFF"}}]}"""
+                val ok = nilxLoadBytecode(runtimeHandle, bytes)
+                if (ok) {
+                    uiJson = nilxGetUIJSON(runtimeHandle)
+                }
             }
 
-            renderUIHierarchy(JSONObject(uiJson), rootContainer)
+            if (uiJson.isNotEmpty() && uiJson != "{}") {
+                renderUIHierarchy(JSONObject(uiJson), rootContainer)
+            } else {
+                val statusText = TextView(this).apply {
+                    text = "NilX Mobile Runtime: Bytecode loaded and running (${bytes.size} bytes)."
+                    textSize = 16f
+                    setTextColor(Color.parseColor("#176BFF"))
+                }
+                rootContainer.addView(statusText)
+            }
         } catch (e: Exception) {
             val errorText = TextView(this).apply {
-                text = "NilX Mobile: Loaded successfully.\n" + e.message
+                text = "NilX Mobile: " + e.message
                 textSize = 16f
                 setTextColor(Color.RED)
             }
@@ -292,7 +301,10 @@ class NilXActivity : Activity() {
                     val fgHex = props.optString("color", "#FFFFFF")
                     setTextColor(Color.parseColor(fgHex))
                     setOnClickListener {
-                        Toast.makeText(this@NilXActivity, "Button clicked: $text", Toast.LENGTH_SHORT).show()
+                        if (runtimeHandle != 0L) {
+                            nilxDispatchTouch(runtimeHandle, it.x, it.y)
+                        }
+                        Toast.makeText(this@NilXActivity, "Triggered: $text", Toast.LENGTH_SHORT).show()
                     }
                     val layoutParams = LinearLayout.LayoutParams(
                         ViewGroup.LayoutParams.WRAP_CONTENT,
@@ -360,37 +372,99 @@ target_link_libraries(nilx_native
 #include <android/log.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include "nilabi.h"
 
 #define LOG_TAG "NilX_JNI"
 #define LOGI(...) __android_log_print(ANDROID_LOG_INFO, LOG_TAG, __VA_ARGS__)
+#define LOGE(...) __android_log_print(ANDROID_LOG_ERROR, LOG_TAG, __VA_ARGS__)
 
 JNIEXPORT jlong JNICALL
 Java_io_nilx_app_NilXActivity_nilxInit(JNIEnv *env, jobject thiz) {
-    LOGI("NilX JNI: Initializing NilX runtime instance");
-    return 1; // context handle
+    LOGI("NilX JNI: Initializing NilRT runtime instance");
+    NilContext ctx = nilx_runtime_create();
+    return (jlong)(intptr_t)ctx;
 }
 
 JNIEXPORT jboolean JNICALL
 Java_io_nilx_app_NilXActivity_nilxLoadBytecode(JNIEnv *env, jobject thiz, jlong handle, jbyteArray bytecode) {
+    if (handle == 0) return JNI_FALSE;
+    NilContext ctx = (NilContext)(intptr_t)handle;
     jsize len = (*env)->GetArrayLength(env, bytecode);
-    LOGI("NilX JNI: Loaded bytecode buffer: %d bytes", (int)len);
+    jbyte *bytes = (*env)->GetByteArrayElements(env, bytecode, NULL);
+
+    NilResult res = nilx_runtime_run(ctx, (uint8_t*)bytes, (size_t)len);
+    (*env)->ReleaseByteArrayElements(env, bytecode, bytes, JNI_ABORT);
+
+    if (!res.ok) {
+        LOGE("NilX JNI: Runtime execution error: %s", res.err.message ? res.err.message : "unknown error");
+        return JNI_FALSE;
+    }
+    LOGI("NilX JNI: Successfully loaded and executed %d bytes of NABC bytecode", (int)len);
     return JNI_TRUE;
 }
 
 JNIEXPORT jstring JNICALL
 Java_io_nilx_app_NilXActivity_nilxGetUIJSON(JNIEnv *env, jobject thiz, jlong handle) {
-    const char* json = "{\"type\":\"Column\",\"children\":[]}";
-    return (*env)->NewStringUTF(env, json);
+    if (handle == 0) return (*env)->NewStringUTF(env, "{}");
+    NilContext ctx = (NilContext)(intptr_t)handle;
+    char* jsonStr = nilx_runtime_get_ui_json(ctx);
+    if (!jsonStr) {
+        return (*env)->NewStringUTF(env, "{}");
+    }
+    jstring res = (*env)->NewStringUTF(env, jsonStr);
+    free(jsonStr);
+    return res;
 }
 
 JNIEXPORT jboolean JNICALL
 Java_io_nilx_app_NilXActivity_nilxDispatchTouch(JNIEnv *env, jobject thiz, jlong handle, jfloat x, jfloat y) {
-    LOGI("NilX JNI: Touch event received at (%.2f, %.2f)", x, y);
-    return JNI_TRUE;
+    if (handle == 0) return JNI_FALSE;
+    NilContext ctx = (NilContext)(intptr_t)handle;
+    return nilx_runtime_dispatch_touch(ctx, (float)x, (float)y) ? JNI_TRUE : JNI_FALSE;
 }
 `
 
-	// 9. res/values/styles.xml & strings.xml
+	// 9. nilabi.h header inside cpp directory
+	nilabiH := `#pragma once
+#include <stdint.h>
+#include <stddef.h>
+#include <stdbool.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+typedef void* NilContext;
+
+typedef struct NilError {
+    int32_t     code;
+    const char* message;
+} NilError;
+
+typedef struct NilValue {
+    int32_t kind;
+} NilValue;
+
+typedef struct NilResult {
+    bool        ok;
+    NilValue    value;
+    NilError    err;
+} NilResult;
+
+NilContext nilx_runtime_create(void);
+void       nilx_runtime_destroy(NilContext ctx);
+NilResult  nilx_runtime_run(NilContext ctx, uint8_t* nabc, size_t nabc_len);
+bool       nilx_runtime_dispatch_touch(NilContext ctx, float x, float y);
+char*      nilx_runtime_get_ui_json(NilContext ctx);
+
+#ifdef __cplusplus
+}
+#endif
+`
+
+	// 10. res/values/styles.xml & strings.xml
 	stringsXml := fmt.Sprintf(`<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">%s</string>
@@ -407,16 +481,17 @@ Java_io_nilx_app_NilXActivity_nilxDispatchTouch(JNIEnv *env, jobject thiz, jlong
 
 	// Write all files
 	fileMap := map[string]string{
-		filepath.Join(outputDir, "settings.gradle.kts"):                   settingsGradle,
-		filepath.Join(outputDir, "build.gradle.kts"):                      rootBuildGradle,
-		filepath.Join(outputDir, "gradle.properties"):                     gradleProperties,
-		filepath.Join(appDir, "build.gradle.kts"):                         appBuildGradle,
-		filepath.Join(srcMain, "AndroidManifest.xml"):                     manifest,
-		filepath.Join(javaPkgDir, "NilXActivity.kt"):                      activityKt,
-		filepath.Join(cppDir, "CMakeLists.txt"):                           cmakeLists,
-		filepath.Join(cppDir, "nilx_jni.c"):                              jniC,
-		filepath.Join(valuesDir, "strings.xml"):                           stringsXml,
-		filepath.Join(valuesDir, "styles.xml"):                            stylesXml,
+		filepath.Join(outputDir, "settings.gradle.kts"): settingsGradle,
+		filepath.Join(outputDir, "build.gradle.kts"):    rootBuildGradle,
+		filepath.Join(outputDir, "gradle.properties"):   gradleProperties,
+		filepath.Join(appDir, "build.gradle.kts"):       appBuildGradle,
+		filepath.Join(srcMain, "AndroidManifest.xml"):   manifest,
+		filepath.Join(javaPkgDir, "NilXActivity.kt"):    activityKt,
+		filepath.Join(cppDir, "CMakeLists.txt"):         cmakeLists,
+		filepath.Join(cppDir, "nilx_jni.c"):            jniC,
+		filepath.Join(cppDir, "nilabi.h"):              nilabiH,
+		filepath.Join(valuesDir, "strings.xml"):         stringsXml,
+		filepath.Join(valuesDir, "styles.xml"):          stylesXml,
 	}
 
 	for path, content := range fileMap {

@@ -173,6 +173,32 @@ func (v Value) String() string {
 	return "<unknown>"
 }
 
+func (v Value) toRawValue() interface{} {
+	switch v.Kind {
+	case ValBool:
+		return v.BoolVal
+	case ValInt:
+		return float64(v.IntVal)
+	case ValFloat:
+		return v.FloatVal
+	case ValString:
+		return v.StrVal
+	case ValArray:
+		slice := make([]interface{}, len(v.Slice))
+		for i, el := range v.Slice {
+			slice[i] = el.toRawValue()
+		}
+		return slice
+	case ValMap, ValObject:
+		m := make(map[string]interface{})
+		for k, el := range v.MapVal {
+			m[k] = el.toRawValue()
+		}
+		return m
+	}
+	return v.String()
+}
+
 func (v Value) Truthy() bool {
 	switch v.Kind {
 	case ValNil:
@@ -878,7 +904,7 @@ func (vm *VM) execute(frame *Frame) error {
 			keyVal := vm.pop()
 			val := vm.pop()
 			if vm.UITree != nil {
-				vm.UITree.SetProp(keyVal.String(), val.String())
+				vm.UITree.SetProp(keyVal.String(), val.toRawValue())
 			}
 		case codegen.OP_UI_EVENT:
 			handlerVal := vm.pop()

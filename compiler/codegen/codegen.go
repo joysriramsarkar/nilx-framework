@@ -657,11 +657,19 @@ func (g *Generator) genUINode(node *ast.UINode) {
 		g.emit(OP_UI_PROP)
 	}
 	for _, mod := range node.Modifiers {
+		if len(mod.Args) == 0 {
+			g.emit(OP_LOAD_TRUE)
+		} else if len(mod.Args) == 1 {
+			g.genExpr(mod.Args[0])
+		} else {
+			// Pack multi-arguments into an array
+			for _, a := range mod.Args {
+				g.genExpr(a)
+			}
+			g.emit(OP_NEW_ARRAY, int32(len(mod.Args)))
+		}
 		midx := g.addConst(Constant{Kind: ConstString, StrVal: mod.Name})
 		g.emit(OP_LOAD_CONST, midx)
-		for _, a := range mod.Args {
-			g.genExpr(a)
-		}
 		g.emit(OP_UI_PROP)
 	}
 	for _, ev := range node.EventHandlers {
