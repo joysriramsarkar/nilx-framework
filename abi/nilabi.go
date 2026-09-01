@@ -32,16 +32,15 @@ func nilx_runtime_run(ctx C.NilContext, nabc *C.uint8_t, nabc_len C.size_t) C.Ni
 	id := uintptr(ctx)
 	data := C.GoBytes(unsafe.Pointer(nabc), C.int(nabc_len))
 	err := ExecuteBytecode(id, data)
+	var res C.NilResult
 	if err != nil {
-		var res C.NilResult
-		res.ok = false
-		res.error.code = -1
-		res.error.message = C.CString(err.Error())
+		res.ok = C.bool(false)
+		res.err.code = C.int32_t(-1)
+		res.err.message = C.CString(err.Error())
 		return res
 	}
 
-	var res C.NilResult
-	res.ok = true
+	res.ok = C.bool(true)
 	return res
 }
 

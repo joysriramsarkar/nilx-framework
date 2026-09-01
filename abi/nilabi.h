@@ -71,7 +71,7 @@ typedef struct NilError {
 typedef struct NilResult {
     bool        ok;
     NilValue    value;
-    NilError    error;
+    NilError    err;
 } NilResult;
 
 /* ─── Function pointer types ────────────────────────────────────────────────── */

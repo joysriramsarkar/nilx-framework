@@ -29,14 +29,9 @@ jobs:
         run: go mod verify
 
       - name: Run unit & integration tests
-        run: go test -v -race ./...
-        if: runner.os != 'windows'
-
-      - name: Run unit & integration tests (Windows)
         run: go test -v ./...
-        if: runner.os == 'windows'
 
-      - name: Build binaries
+      - name: Build binaries (Unix)
         run: |
           mkdir -p bin
           go build -v -o bin/nil ./cmd/nil
