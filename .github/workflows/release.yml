@@ -1,0 +1,103 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-release:
+    name: Build Release Artifacts
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - goos: linux
+            goarch: amd64
+            archive: tar.gz
+          - goos: linux
+            goarch: arm64
+            archive: tar.gz
+          - goos: darwin
+            goarch: amd64
+            archive: tar.gz
+          - goos: darwin
+            goarch: arm64
+            archive: tar.gz
+          - goos: windows
+            goarch: amd64
+            archive: zip
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.22.x'
+          cache: true
+
+      - name: Build release binaries
+        env:
+          GOOS: ${{ matrix.goos }}
+          GOARCH: ${{ matrix.goarch }}
+        run: |
+          TAG_NAME=${GITHUB_REF_NAME:-latest}
+          PKG_NAME="nilx-${TAG_NAME}-${{ matrix.goos }}-${{ matrix.goarch }}"
+          mkdir -p "dist/${PKG_NAME}"
+
+          EXT=""
+          if [ "${{ matrix.goos }}" = "windows" ]; then
+            EXT=".exe"
+          fi
+
+          go build -ldflags="-s -w" -o "dist/${PKG_NAME}/nil${EXT}" ./cmd/nil
+          go build -ldflags="-s -w" -o "dist/${PKG_NAME}/nilc${EXT}" ./cmd/nilc
+          go build -ldflags="-s -w" -o "dist/${PKG_NAME}/nills${EXT}" ./cmd/nills
+
+          cp README.md "dist/${PKG_NAME}/"
+          
+          cd dist
+          if [ "${{ matrix.archive }}" = "zip" ]; then
+            zip -r "${PKG_NAME}.zip" "${PKG_NAME}"
+          else
+            tar -czvf "${PKG_NAME}.tar.gz" "${PKG_NAME}"
+          fi
+          cd ..
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: nilx-${{ matrix.goos }}-${{ matrix.goarch }}
+          path: dist/*.${{ matrix.archive }}
+
+  create-release:
+    name: Publish GitHub Release
+    needs: build-release
+    if: startsWith(github.ref, 'refs/tags/')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: release-artifacts
+          merge-multiple: true
+
+      - name: Generate SHA-256 Checksums
+        run: |
+          cd release-artifacts
+          sha256sum * > SHA256SUMS.txt
+          cat SHA256SUMS.txt
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: release-artifacts/*
+          draft: false
+          prerelease: false
+          generate_release_notes: true

@@ -1,0 +1,83 @@
+name: CI
+
+on:
+  push:
+    branches: [ master, main ]
+  pull_request:
+    branches: [ master, main ]
+
+jobs:
+  test:
+    name: Test & Build (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ ubuntu-latest, windows-latest, macos-latest ]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.22.x'
+          cache: true
+
+      - name: Verify module dependencies
+        run: go mod verify
+
+      - name: Run unit & integration tests
+        run: go test -v -race ./...
+        if: runner.os != 'windows'
+
+      - name: Run unit & integration tests (Windows)
+        run: go test -v ./...
+        if: runner.os == 'windows'
+
+      - name: Build binaries
+        run: |
+          mkdir -p bin
+          go build -v -o bin/nil ./cmd/nil
+          go build -v -o bin/nilc ./cmd/nilc
+          go build -v -o bin/nills ./cmd/nills
+        if: runner.os != 'windows'
+
+      - name: Build binaries (Windows)
+        run: |
+          if (!(Test-Path "bin")) { New-Item -ItemType Directory -Path "bin" }
+          go build -v -o bin/nil.exe ./cmd/nil
+          go build -v -o bin/nilc.exe ./cmd/nilc
+          go build -v -o bin/nills.exe ./cmd/nills
+        if: runner.os == 'windows'
+
+      - name: Verify CLI tools & project checks (Unix)
+        run: |
+          ./bin/nil --help
+          ./bin/nills --version
+          ./bin/nil check
+          ./bin/nil build nilos
+          ./bin/nil build android
+          ./bin/nil build ios
+          ./bin/nil build linux
+          ./bin/nil run examples/hello/main.nil
+          ./bin/nil run examples/calculator/main.nil
+          ./bin/nil run examples/social/main.nil
+          ./bin/nil run examples/todo/main.nil
+        if: runner.os != 'windows'
+
+      - name: Verify CLI tools & project checks (Windows)
+        run: |
+          .\bin\nil.exe --help
+          .\bin\nills.exe --version
+          .\bin\nil.exe check
+          .\bin\nil.exe build nilos
+          .\bin\nil.exe build android
+          .\bin\nil.exe build ios
+          .\bin\nil.exe build linux
+          .\bin\nil.exe run examples/hello/main.nil
+          .\bin\nil.exe run examples/calculator/main.nil
+          .\bin\nil.exe run examples/social/main.nil
+          .\bin\nil.exe run examples/todo/main.nil
+        if: runner.os == 'windows'
