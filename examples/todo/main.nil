@@ -1,0 +1,138 @@
+// todo.nil — NilLang Todo App (CLI version)
+// Demonstrates: arrays, structs, enums, functions, match
+// Run: nilc -in examples/todo/main.nil -run
+
+enum TodoStatus {
+    Pending,
+    InProgress,
+    Done,
+    Cancelled
+}
+
+struct Todo {
+    id: i32
+    title: string
+    status: string
+    priority: i32
+    tags: string[]
+}
+
+function createTodo(id: i32, title: string, priority: i32): Todo {
+    return {
+        id: id,
+        title: title,
+        status: "Pending",
+        priority: priority,
+        tags: []
+    }
+}
+
+function markDone(todo: Todo): void {
+    todo.status = "Done"
+}
+
+function markInProgress(todo: Todo): void {
+    todo.status = "InProgress"
+}
+
+function displayTodo(todo: Todo): void {
+    let statusIcon: string = "⬜"
+    if todo.status == "Done" {
+        statusIcon = "✅"
+    }
+    if todo.status == "InProgress" {
+        statusIcon = "🔄"
+    }
+    if todo.status == "Cancelled" {
+        statusIcon = "❌"
+    }
+    print(statusIcon + " [" + todo.id.toString() + "] " + todo.title + " (priority=" + todo.priority.toString() + ")")
+}
+
+function countByStatus(todos: Todo[], status: string): i32 {
+    let count: i32 = 0
+    let i: i32 = 0
+    while i < todos.length {
+        if todos[i].status == status {
+            count = count + 1
+        }
+        i = i + 1
+    }
+    return count
+}
+
+function filterByPriority(todos: Todo[], minPriority: i32): Todo[] {
+    let result: Todo[] = []
+    let i: i32 = 0
+    while i < todos.length {
+        if todos[i].priority >= minPriority {
+            result.push(todos[i])
+        }
+        i = i + 1
+    }
+    return result
+}
+
+function printStats(todos: Todo[]): void {
+    let total: i32 = todos.length
+    let done: i32 = countByStatus(todos, "Done")
+    let pending: i32 = countByStatus(todos, "Pending")
+    let inProgress: i32 = countByStatus(todos, "InProgress")
+
+    print("")
+    print("=== Statistics ===")
+    print("Total:       " + total.toString())
+    print("Done:        " + done.toString())
+    print("In Progress: " + inProgress.toString())
+    print("Pending:     " + pending.toString())
+}
+
+function main(): void {
+    print("=== NilLang Todo App ===")
+    print("")
+
+    // Create todos
+    let todos: Todo[] = [
+    createTodo(1, "Set up NilX Framework", 5),
+    createTodo(2, "Write NilLang compiler", 5),
+    createTodo(3, "Implement VM runtime", 4),
+    createTodo(4, "Build UI engine", 4),
+    createTodo(5, "Create platform adapters", 3),
+    createTodo(6, "Write documentation", 3),
+    createTodo(7, "Add unit tests", 4),
+    createTodo(8, "Set up CI/CD pipeline", 2),
+    createTodo(9, "Publish to GitHub", 2),
+    createTodo(10, "Deploy NilOS integration", 5)
+    ]
+
+    // Update some statuses
+    markDone(todos[0])
+    markDone(todos[1])
+    markDone(todos[2])
+    markInProgress(todos[3])
+    markInProgress(todos[4])
+    markInProgress(todos[6])
+
+    print("--- All Todos ---")
+    let i: i32 = 0
+    while i < todos.length {
+        displayTodo(todos[i])
+        i = i + 1
+    }
+
+    print("")
+    print("--- High Priority (>= 4) ---")
+    let highPriority = filterByPriority(todos, 4)
+    let j: i32 = 0
+    while j < highPriority.length {
+        displayTodo(highPriority[j])
+        j = j + 1
+    }
+
+    printStats(todos)
+
+    print("")
+    print("=== Done ===")
+}
+
+main()

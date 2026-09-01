@@ -1,0 +1,166 @@
+// social.nil — NilLang Social Feed Application
+// Demonstrates: Declarative UI, Component hierarchy, State, Structs, Arrays, Stdlib (crypto/time)
+// Run: nil run examples/social/main.nil
+
+struct Post {
+    id: string
+    author: string
+    avatar: string
+    content: string
+    timestamp: string
+    likes: i32
+    comments: string[]
+}
+
+component Header {
+    build() {
+        Row {
+            Text("NilX Social")
+                .fontSize(24)
+                .fontWeight("bold")
+                .color("#176BFF")
+
+            Spacer()
+
+            Button("New Post") {
+                onClick => {
+                    print("[Action] New Post dialog opened")
+                }
+            }
+            .backgroundColor("#176BFF")
+            .color("#FFFFFF")
+            .borderRadius(8)
+        }
+        .padding({ horizontal: 16, vertical: 12 })
+        .backgroundColor("#FFFFFF")
+    }
+}
+
+component FeedCard {
+    prop post: Post
+
+    build() {
+        Card {
+            Column {
+                // Author row
+                Row {
+                    Text(post.author)
+                        .fontSize(16)
+                        .fontWeight("bold")
+                        .color("#1C1C1E")
+
+                    Spacer()
+
+                    Text(post.timestamp)
+                        .fontSize(12)
+                        .color("#8E8E93")
+                }
+                .margin({ bottom: 8 })
+
+                // Content body
+                Text(post.content)
+                    .fontSize(15)
+                    .color("#3A3A3C")
+                    .margin({ bottom: 12 })
+
+                Divider()
+
+                // Actions row
+                Row {
+                    Button("❤️ " + post.likes.toString()) {
+                        onClick => {
+                            post.likes = post.likes + 1
+                            print("Post " + post.id + " liked! Total: " + post.likes.toString())
+                        }
+                    }
+                    .backgroundColor("#F2F2F7")
+                    .color("#FF3B30")
+                    .borderRadius(6)
+
+                    Spacer()
+
+                    Button("💬 " + post.comments.length.toString() + " Comments") {
+                        onClick => {
+                            print("Comments for post " + post.id + " clicked")
+                        }
+                    }
+                    .backgroundColor("#F2F2F7")
+                    .color("#5856D6")
+                    .borderRadius(6)
+                }
+                .margin({ top: 8 })
+            }
+            .padding(16)
+        }
+        .margin({ horizontal: 16, vertical: 8 })
+    }
+}
+
+@Entry
+@Component
+component App {
+    @State activeTab: string = "Feed"
+
+    build() {
+        Column {
+            Header()
+
+            ScrollView {
+                Column {
+                    Text("Latest Updates")
+                        .fontSize(20)
+                        .fontWeight("bold")
+                        .color("#1C1C1E")
+                        .margin({ horizontal: 16, top: 16, bottom: 8 })
+                }
+            }
+        }
+        .backgroundColor("#F5F5F7")
+    }
+}
+
+function createPost(author: string, content: string): Post {
+    let postID: string = crypto_uuid()
+    let now: i32 = time_now()
+    return {
+        id: postID,
+        author: author,
+        avatar: "👤",
+        content: content,
+        timestamp: "Just now",
+        likes: 0,
+        comments: []
+    }
+}
+
+function main(): void {
+    print("=== NilX Social Feed ===")
+    print("")
+
+    let p1: Post = createPost("Joy Sarkar", "Building the next generation cross-platform language NilLang!")
+    let p2: Post = createPost("NilOS Core Team", "Vulkan GPU rendering and Wayland compositor integrated into NilX.")
+    let p3: Post = createPost("Mobile Dev", "Android APK and iOS Metal scaffolds are fully operational!")
+
+    p1.likes = 42
+    p1.comments.push("Awesome progress! 🚀")
+    p1.comments.push("Love the ArkUI-style declarative components!")
+
+    p2.likes = 128
+    p2.comments.push("Super smooth frame rates.")
+
+    print("Post 1 by " + p1.author + ": " + p1.content)
+    print("Likes: " + p1.likes.toString() + " | Comments: " + p1.comments.length.toString())
+    print("Post ID: " + p1.id)
+    print("")
+
+    print("Post 2 by " + p2.author + ": " + p2.content)
+    print("Likes: " + p2.likes.toString() + " | Comments: " + p2.comments.length.toString())
+    print("")
+
+    print("Post 3 by " + p3.author + ": " + p3.content)
+    print("")
+
+    print("=== NilX Social Feed Initialized ===")
+}
+
+main()

@@ -1,0 +1,107 @@
+// counter.nil — NilLang Counter example
+// Demonstrates: variables, functions, loops, closures
+// Run: nilc -in examples/counter/main.nil -run
+
+struct Counter {
+    value: i32
+    step: i32
+    name: string
+}
+
+function createCounter(name: string, step: i32): Counter {
+    return { value: 0, step: step, name: name }
+}
+
+function increment(c: Counter): i32 {
+    c.value = c.value + c.step
+    return c.value
+}
+
+function decrement(c: Counter): i32 {
+    c.value = c.value - c.step
+    return c.value
+}
+
+function reset(c: Counter): void {
+    c.value = 0
+}
+
+function displayCounter(c: Counter): void {
+    print("[" + c.name + "] value = " + c.value.toString() + " (step=" + c.step.toString() + ")")
+}
+
+function factorial(n: i32): i32 {
+    if n <= 1 {
+        return 1
+    }
+    return n * factorial(n - 1)
+}
+
+function fibonacci(n: i32): i32 {
+    if n <= 1 {
+        return n
+    }
+    return fibonacci(n - 1) + fibonacci(n - 2)
+}
+
+function sumRange(from: i32, to: i32): i32 {
+    let sum: i32 = 0
+    let i: i32 = from
+    while i <= to {
+        sum = sum + i
+        i = i + 1
+    }
+    return sum
+}
+
+function main(): void {
+    print("=== NilLang Counter Demo ===")
+    print("")
+
+    // Basic counter
+    let c1 = createCounter("Counter-1", 1)
+    let c2 = createCounter("Counter-5", 5)
+
+    print("--- Incrementing ---")
+    increment(c1); displayCounter(c1)
+    increment(c1); displayCounter(c1)
+    increment(c1); displayCounter(c1)
+
+    print("")
+    print("--- Step-5 Counter ---")
+    increment(c2); displayCounter(c2)
+    increment(c2); displayCounter(c2)
+    increment(c2); displayCounter(c2)
+
+    print("")
+    print("--- Decrement ---")
+    decrement(c1); displayCounter(c1)
+
+    print("")
+    print("--- Reset ---")
+    reset(c1); displayCounter(c1)
+
+    print("")
+    print("--- Factorial ---")
+    let i: i32 = 1
+    while i <= 10 {
+        print(i.toString() + "! = " + factorial(i).toString())
+        i = i + 1
+    }
+
+    print("")
+    print("--- Fibonacci ---")
+    let j: i32 = 0
+    while j <= 10 {
+        print("fib(" + j.toString() + ") = " + fibonacci(j).toString())
+        j = j + 1
+    }
+
+    print("")
+    print("--- Sum 1..100 = " + sumRange(1, 100).toString())
+
+    print("")
+    print("=== Done ===")
+}
+
+main()
