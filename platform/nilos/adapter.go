@@ -1,54 +1,47 @@
-// Package nilos implements the NilX platform adapter for NilOS.
-// This adapter connects NilX apps to NilOS system services:
-//   - nilui / nilui-gpu (Vulkan renderer)
+// Package nilos implements the native platform adapter for NilOS.
+// Connects NilX apps directly to NilOS services:
+//   - nilui / nilui-gpu (Vulkan renderer & Wayland surface manager)
 //   - nilbus-client (distributed IPC)
-//   - nilhal (hardware abstraction)
-//   - Wayland compositor
+//   - nilhal (hardware & sensor abstraction)
+//   - nilpkg / nilrt (signed sandbox & app lifecycle supervisor)
 package nilos
 
 import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"sync"
+
+	"github.com/joysriramsarkar/nilx-framework/compiler/codegen"
+	"github.com/joysriramsarkar/nilx-framework/platform/nilos/nilbus"
+	"github.com/joysriramsarkar/nilx-framework/platform/nilos/nilhal"
+	"github.com/joysriramsarkar/nilx-framework/platform/nilos/nilui"
+	"github.com/joysriramsarkar/nilx-framework/runtime/vm"
 )
 
-// Adapter is the NilOS platform adapter.
+// Adapter is the full NilOS native platform adapter.
 type Adapter struct {
+	mu            sync.RWMutex
 	KernelVersion string
 	DisplayServer string // "wayland"
 	GPUBackend    string // "vulkan"
-	DisplayHandle uintptr
-	WindowHandle  uintptr
+	BusClient     *nilbus.Client
+	Renderer      *nilui.Renderer
+	HAL           *nilhal.HAL
 	initialized   bool
-}
-
-// Platform interface — every platform adapter implements this.
-type Platform interface {
-	Init() error
-	Shutdown()
-	CreateWindow(title string, width, height int) error
-	ShowWindow()
-	PollEvents() []Event
-	SwapBuffers()
-	// Hardware access
-	GetKernelVersion() string
-	TriggerSensor(sensorID int) error
-	ReadSensorData(sensorID int) ([]float64, error)
-	// File system
-	ReadFile(path string) ([]byte, error)
-	WriteFile(path string, data []byte) error
-	// Notifications
-	SendNotification(title, body string) error
+	activeVM      *vm.VM
+	capabilities  map[string]bool
 }
 
 // Event represents a platform input event.
 type Event struct {
-	Type    EventType
-	X, Y    float32
-	Key     string
-	Char    rune
-	ScrollX float32
-	ScrollY float32
+	Type    EventType `json:"type"`
+	X       float64   `json:"x"`
+	Y       float64   `json:"y"`
+	Key     string    `json:"key,omitempty"`
+	Char    rune      `json:"char,omitempty"`
+	ScrollX float64   `json:"scrollX,omitempty"`
+	ScrollY float64   `json:"scrollY,omitempty"`
 }
 
 type EventType int
@@ -68,109 +61,156 @@ const (
 	EventBackButton
 )
 
-// New creates a NilOS platform adapter.
+// New creates a new NilOS platform adapter with full system service clients.
 func New() *Adapter {
 	return &Adapter{
-		KernelVersion: "NilOS-0.1",
+		KernelVersion: "NilOS-0.1-vulkan",
 		DisplayServer: "wayland",
 		GPUBackend:    "vulkan",
+		BusClient:     nilbus.NewClient(""),
+		Renderer:      nilui.NewRenderer("NilXApp", 1080, 1920),
+		HAL:           nilhal.NewHAL(),
+		capabilities:  make(map[string]bool),
 	}
 }
 
-// Init initializes the NilOS platform.
-// In production: connects to Wayland compositor, initializes Vulkan via nilui-gpu.
+// Init connects to the NilOS system services (NilBus, NilUI, NilHAL).
 func (a *Adapter) Init() error {
-	fmt.Println("[NilOS] Initializing NilX platform adapter...")
-	fmt.Printf("[NilOS] Kernel: %s | Display: %s | GPU: %s\n",
-		a.KernelVersion, a.DisplayServer, a.GPUBackend)
+	a.mu.Lock()
+	defer a.mu.Unlock()
+
+	if a.initialized {
+		return nil
+	}
+
+	// 1. Connect to NilBus IPC
+	if err := a.BusClient.Connect(); err != nil {
+		return fmt.Errorf("failed connecting to nilbus: %w", err)
+	}
+
+	// 2. Grant default runtime capabilities
+	a.capabilities["storage.read"] = true
+	a.capabilities["notifications"] = true
+	a.capabilities["sensors"] = true
+	a.capabilities["network"] = true
+
 	a.initialized = true
 	return nil
 }
 
+// Shutdown disconnects from all NilOS system services.
 func (a *Adapter) Shutdown() {
+	a.mu.Lock()
+	defer a.mu.Unlock()
+
 	if a.initialized {
-		fmt.Println("[NilOS] Shutting down NilX platform adapter...")
+		if a.BusClient != nil {
+			a.BusClient.Close()
+		}
 		a.initialized = false
 	}
 }
 
+// CreateWindow creates a Wayland xdg_surface with Vulkan swapchain.
 func (a *Adapter) CreateWindow(title string, width, height int) error {
-	fmt.Printf("[NilOS] Creating Wayland window: %q %dx%d\n", title, width, height)
-	// In production: calls nilshell Wayland compositor API
-	// xdg_surface, xdg_toplevel, wl_surface
+	a.mu.Lock()
+	defer a.mu.Unlock()
+	a.Renderer = nilui.NewRenderer(title, width, height)
 	return nil
 }
 
-func (a *Adapter) ShowWindow() {
-	fmt.Println("[NilOS] Showing window via Wayland...")
+// CheckCapability verifies if the app has been granted a specific permission.
+func (a *Adapter) CheckCapability(capName string) bool {
+	a.mu.RLock()
+	defer a.mu.RUnlock()
+	return a.capabilities[capName]
 }
 
-func (a *Adapter) PollEvents() []Event {
-	// In production: reads Wayland event queue
-	return nil
-}
-
-func (a *Adapter) SwapBuffers() {
-	// In production: calls Vulkan present (vkQueuePresentKHR)
-}
-
-func (a *Adapter) GetKernelVersion() string {
-	return a.KernelVersion
-}
-
-func (a *Adapter) TriggerSensor(sensorID int) error {
-	fmt.Printf("[NilOS] Triggering hardware sensor %d via nilhal...\n", sensorID)
-	// In production: calls NilOS HAL sensor API
-	return nil
-}
-
-func (a *Adapter) ReadSensorData(sensorID int) ([]float64, error) {
-	// Stub
-	return []float64{0.0, 9.81, 0.0}, nil
-}
-
-func (a *Adapter) ReadFile(path string) ([]byte, error) {
-	fmt.Printf("[NilOS] Reading file via nilfs: %s\n", path)
-	return nil, nil
-}
-
-func (a *Adapter) WriteFile(path string, data []byte) error {
-	fmt.Printf("[NilOS] Writing file via nilfs: %s (%d bytes)\n", path, len(data))
-	return nil
-}
-
+// SendNotification dispatches a system notification via NilBus.
 func (a *Adapter) SendNotification(title, body string) error {
-	fmt.Printf("[NilOS] Notification: %s — %s\n", title, body)
-	return nil
+	if !a.CheckCapability("notifications") {
+		return fmt.Errorf("permission denied: notifications")
+	}
+
+	payload := []byte(fmt.Sprintf(`{"title":%q,"body":%q}`, title, body))
+	_, err := a.BusClient.Call("org.nilos.NotificationService", "Notify", payload)
+	return err
 }
 
-// NilOSAPI provides direct NilOS kernel API access (unique advantage of NilOS).
-// No bridge overhead — direct kernel calls.
-type NilOSAPI struct {
-	adapter *Adapter
+// ReadSensorData reads hardware telemetry via NilHAL.
+func (a *Adapter) ReadSensorData(sensorID int) ([]float64, error) {
+	if !a.CheckCapability("sensors") {
+		return nil, fmt.Errorf("permission denied: sensors")
+	}
+	return a.HAL.ReadSensor(nilhal.SensorKind(sensorID))
 }
 
-func NewAPI(a *Adapter) *NilOSAPI {
-	return &NilOSAPI{adapter: a}
+// DispatchTouchEvent routes Wayland touch events to the active UI engine.
+func (a *Adapter) DispatchTouchEvent(x, y float64) bool {
+	a.mu.RLock()
+	activeVM := a.activeVM
+	a.mu.RUnlock()
+
+	if activeVM == nil {
+		return false
+	}
+
+	tree := activeVM.GetUITree()
+	if tree == nil {
+		return false
+	}
+
+	return tree.DispatchTouch(x, y)
 }
 
-func (n *NilOSAPI) GetKernelVersion() string {
-	return n.adapter.GetKernelVersion()
+// RenderCurrentFrame computes UI layout and exports Vulkan render commands.
+func (a *Adapter) RenderCurrentFrame() (string, error) {
+	a.mu.RLock()
+	activeVM := a.activeVM
+	renderer := a.Renderer
+	a.mu.RUnlock()
+
+	if activeVM == nil || renderer == nil {
+		return "{}", nil
+	}
+
+	tree := activeVM.GetUITree()
+	if tree == nil || tree.Root == nil {
+		return "{}", nil
+	}
+
+	activeVM.ComputeUILayout(float64(renderer.Width), float64(renderer.Height))
+	packet := renderer.RenderTree(tree.Root)
+	return renderer.ExportFrameJSON(packet)
 }
 
-func (n *NilOSAPI) AccessMemoryRegion(addr uintptr) ([]byte, error) {
-	fmt.Printf("[NilOS] Direct memory access at 0x%X\n", addr)
-	return make([]byte, 16), nil
-}
+// RunApp launches and supervises a native .nilapp package on NilOS.
+func (a *Adapter) RunApp(bundlePath string) error {
+	if err := a.Init(); err != nil {
+		return err
+	}
 
-func (n *NilOSAPI) TriggerCustomHardwareSensor(id int) error {
-	return n.adapter.TriggerSensor(id)
-}
+	nabcPath := filepath.Join(bundlePath, "bin", "main.nabc")
+	if _, err := os.Stat(nabcPath); os.IsNotExist(err) {
+		nabcPath = filepath.Join(bundlePath, "main.nabc")
+	}
 
-func (n *NilOSAPI) DistributedBusCall(service string, method string, args []byte) ([]byte, error) {
-	fmt.Printf("[NilOS] nilbus-client: %s.%s(%d bytes)\n", service, method, len(args))
-	// In production: uses nilbus-client IPC
-	return nil, nil
+	data, err := os.ReadFile(nabcPath)
+	if err != nil {
+		return fmt.Errorf("failed reading .nilapp bytecode: %w", err)
+	}
+
+	mod, err := codegen.Deserialize(data)
+	if err != nil {
+		return fmt.Errorf("failed deserializing bytecode: %w", err)
+	}
+
+	runner := vm.New(mod)
+	a.mu.Lock()
+	a.activeVM = runner
+	a.mu.Unlock()
+
+	return runner.Run()
 }
 
 // GenerateProject builds a complete native NilOS .nilapp bundle structure.
@@ -191,13 +231,40 @@ Name = NilXApp
 Version = 0.1.0
 Platform = nilos
 Entry = bin/main.nabc
-Permissions = storage.read, notifications, network
+Permissions = storage.read, notifications, sensors, network
 DisplayServer = wayland
 GPUBackend = vulkan
 KernelMinVersion = 0.1.0
 `
+	launcherSh := `#!/bin/sh
+# nilos-launcher.sh — Native NilOS Wayland/Vulkan app launcher
+DIR="$(cd "$(dirname "$0")" && pwd)"
+export NILOS_DISPLAY="wayland-0"
+export NILOS_GPU="vulkan"
+exec nilc -in "$DIR/bin/main.nabc" -run "$@"
+`
+	serviceUnit := `[Unit]
+Description=NilX Native Application on NilOS
+After=nilbus.service nilui.service
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/nilc -in /app/bin/main.nabc -run
+Restart=on-failure
+Environment="NILBUS_SOCKET=/run/nilbus/system.sock"
+
+[Install]
+WantedBy=graphical-session.target
+`
+
 	if err := os.WriteFile(filepath.Join(nilosDir, "app.nilxmanifest"), []byte(manifest), 0644); err != nil {
 		return fmt.Errorf("failed writing manifest: %w", err)
+	}
+	if err := os.WriteFile(filepath.Join(nilosDir, "nilos-launcher.sh"), []byte(launcherSh), 0755); err != nil {
+		return fmt.Errorf("failed writing launcher: %w", err)
+	}
+	if err := os.WriteFile(filepath.Join(nilosDir, "nilx-app.service"), []byte(serviceUnit), 0644); err != nil {
+		return fmt.Errorf("failed writing service unit: %w", err)
 	}
 
 	if len(bytecode) > 0 {

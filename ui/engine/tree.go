@@ -24,6 +24,11 @@ func NewUITree() *UITree {
 	}
 }
 
+// NewTree is an alias for NewUITree.
+func NewTree() *UITree {
+	return NewUITree()
+}
+
 // BeginNode creates a new widget node and pushes it onto the active parent stack.
 func (t *UITree) BeginNode(widgetType string) *WidgetNode {
 	t.mu.Lock()
@@ -108,6 +113,29 @@ func (t *UITree) DispatchEvent(nodeID, eventName string, args ...interface{}) bo
 		return false
 	}
 	return node.TriggerEvent(eventName, args...)
+}
+
+// HitTest finds the topmost widget node containing (x, y).
+func (t *UITree) HitTest(x, y float64) *WidgetNode {
+	t.mu.RLock()
+	defer t.mu.RUnlock()
+	return hitTestNode(t.Root, x, y)
+}
+
+func hitTestNode(node *WidgetNode, x, y float64) *WidgetNode {
+	if node == nil {
+		return nil
+	}
+	for i := len(node.Children) - 1; i >= 0; i-- {
+		if hit := hitTestNode(node.Children[i], x, y); hit != nil {
+			return hit
+		}
+	}
+	b := node.Bounds
+	if x >= b.X && x <= b.X+b.Width && y >= b.Y && y <= b.Y+b.Height {
+		return node
+	}
+	return nil
 }
 
 // DispatchTouch checks which leaf node contains (x, y) and triggers "onClick".

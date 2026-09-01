@@ -937,6 +937,16 @@ func (vm *VM) invoke(callee Value, args []Value) (Value, error) {
 	return Nil, nil
 }
 
+// FindFunction returns a function by name if defined in the module.
+func (vm *VM) FindFunction(name string) *codegen.Function {
+	return vm.findFunction(name)
+}
+
+// InvokeFunction invokes a named function with arguments in the VM.
+func (vm *VM) InvokeFunction(name string, args []Value) (Value, error) {
+	return vm.invoke(StrVal(name), args)
+}
+
 // opAdd handles + (numeric or string concat).
 func (vm *VM) opAdd(a, b Value) Value {
 	if a.Kind == ValString || b.Kind == ValString {
