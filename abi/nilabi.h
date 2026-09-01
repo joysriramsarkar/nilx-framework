@@ -82,7 +82,9 @@ typedef void     (*NilUIEventHandler)(NilValue event, void* user_data);
 /* ─── Runtime lifecycle ─────────────────────────────────────────────────────── */
 NilContext nilx_runtime_create(void);
 void       nilx_runtime_destroy(NilContext ctx);
-NilResult  nilx_runtime_run(NilContext ctx, const uint8_t* nabc, size_t nabc_len);
+NilResult  nilx_runtime_run(NilContext ctx, uint8_t* nabc, size_t nabc_len);
+bool       nilx_runtime_dispatch_touch(NilContext ctx, float x, float y);
+char*      nilx_runtime_get_ui_json(NilContext ctx);
 
 /* ─── Value constructors ────────────────────────────────────────────────────── */
 NilValue nilx_val_null(void);
