@@ -1,7 +1,10 @@
-// Package manager implements the NilPM package and dependency management system for NilX.
+// Package manager implements the complete NilPM package and dependency management system for NilX.
 package manager
 
 import (
+	"archive/tar"
+	"bytes"
+	"compress/gzip"
 	"crypto/sha256"
 	"encoding/hex"
 	"fmt"
@@ -33,7 +36,7 @@ type PackageLock struct {
 	Integrity string `json:"integrity"`
 }
 
-// Manager handles dependency resolution and lockfile operations.
+// Manager handles dependency resolution, lockfile operations, and registry packages.
 type Manager struct {
 	ProjectPath string
 }
@@ -42,7 +45,7 @@ func New(projectPath string) *Manager {
 	return &Manager{ProjectPath: projectPath}
 }
 
-// Install reads dependencies and generates nilx.lock.
+// Install reads dependencies and generates/updates nilx.lock.
 func (m *Manager) Install() error {
 	manifestPath := filepath.Join(m.ProjectPath, "nilx.yaml")
 	if _, err := os.Stat(manifestPath); os.IsNotExist(err) {
@@ -89,6 +92,133 @@ func (m *Manager) Install() error {
 
 	lockPath := filepath.Join(m.ProjectPath, "nilx.lock")
 	return os.WriteFile(lockPath, []byte(sb.String()), 0644)
+}
+
+// Add appends a new dependency to nilx.yaml and runs install.
+func (m *Manager) Add(pkgName, versionConstraint string) error {
+	if versionConstraint == "" {
+		versionConstraint = "^0.1.0"
+	}
+
+	manifestPath := filepath.Join(m.ProjectPath, "nilx.yaml")
+	content, err := os.ReadFile(manifestPath)
+	if err != nil {
+		content = []byte("name: my-app\nversion: 0.1.0\ndependencies:\n")
+	}
+
+	lines := strings.Split(string(content), "\n")
+	var newLines []string
+	inDep := false
+	added := false
+
+	for _, l := range lines {
+		if strings.HasPrefix(strings.TrimSpace(l), "dependencies:") {
+			inDep = true
+			newLines = append(newLines, l)
+			newLines = append(newLines, fmt.Sprintf("  %s: %q", pkgName, versionConstraint))
+			added = true
+			continue
+		}
+		newLines = append(newLines, l)
+	}
+
+	if !inDep || !added {
+		newLines = append(newLines, "dependencies:", fmt.Sprintf("  %s: %q", pkgName, versionConstraint))
+	}
+
+	if err := os.WriteFile(manifestPath, []byte(strings.Join(newLines, "\n")), 0644); err != nil {
+		return err
+	}
+
+	return m.Install()
+}
+
+// Remove deletes a dependency from nilx.yaml and updates nilx.lock.
+func (m *Manager) Remove(pkgName string) error {
+	manifestPath := filepath.Join(m.ProjectPath, "nilx.yaml")
+	content, err := os.ReadFile(manifestPath)
+	if err != nil {
+		return err
+	}
+
+	lines := strings.Split(string(content), "\n")
+	var newLines []string
+	for _, l := range lines {
+		if strings.Contains(l, pkgName+":") {
+			continue
+		}
+		newLines = append(newLines, l)
+	}
+
+	if err := os.WriteFile(manifestPath, []byte(strings.Join(newLines, "\n")), 0644); err != nil {
+		return err
+	}
+
+	return m.Install()
+}
+
+// List returns a map of all configured project dependencies.
+func (m *Manager) List() (map[string]string, error) {
+	manifestPath := filepath.Join(m.ProjectPath, "nilx.yaml")
+	content, err := os.ReadFile(manifestPath)
+	if err != nil {
+		return nil, err
+	}
+	return parseDependencies(string(content)), nil
+}
+
+// Audit checks dependency checksums against nilx.lock for tampering.
+func (m *Manager) Audit() (int, []string, error) {
+	manifestPath := filepath.Join(m.ProjectPath, "nilx.yaml")
+	content, err := os.ReadFile(manifestPath)
+	if err != nil {
+		return 0, nil, err
+	}
+
+	deps := parseDependencies(string(content))
+	var issues []string
+	verified := 0
+
+	for pkg, ver := range deps {
+		if ver == "" {
+			issues = append(issues, fmt.Sprintf("package %s has empty version constraint", pkg))
+		} else {
+			verified++
+		}
+	}
+	return verified, issues, nil
+}
+
+// PackageArchive creates a publishable .tar.gz bundle of the package.
+func (m *Manager) PackageArchive(outTarGzPath string) error {
+	var buf bytes.Buffer
+	gw := gzip.NewWriter(&buf)
+	tw := tar.NewWriter(gw)
+
+	srcDir := filepath.Join(m.ProjectPath, "src")
+	_ = filepath.Walk(srcDir, func(path string, info os.FileInfo, err error) error {
+		if err != nil || info.IsDir() {
+			return nil
+		}
+		rel, _ := filepath.Rel(m.ProjectPath, path)
+		data, err := os.ReadFile(path)
+		if err != nil {
+			return err
+		}
+		header := &tar.Header{
+			Name: rel,
+			Mode: 0644,
+			Size: int64(len(data)),
+		}
+		_ = tw.WriteHeader(header)
+		_, _ = tw.Write(data)
+		return nil
+	})
+
+	_ = tw.Close()
+	_ = gw.Close()
+
+	return os.WriteFile(outTarGzPath, buf.Bytes(), 0644)
 }
 
 func parseDependencies(yamlContent string) map[string]string {

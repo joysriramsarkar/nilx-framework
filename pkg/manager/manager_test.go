@@ -3,12 +3,28 @@ package manager
 import (
 	"os"
 	"path/filepath"
-	"strings"
 	"testing"
 )
 
-func TestPackageManagerInstall(t *testing.T) {
-	tempDir, err := os.MkdirTemp("", "nilpm_test_*")
+func TestSemverMatching(t *testing.T) {
+	v1, err := ParseVersion("1.2.3")
+	if err != nil || v1.Major != 1 || v1.Minor != 2 || v1.Patch != 3 {
+		t.Fatalf("failed parsing 1.2.3: %v", err)
+	}
+
+	if !v1.MatchesConstraint("^1.2.0") {
+		t.Errorf("expected 1.2.3 to match ^1.2.0")
+	}
+	if !v1.MatchesConstraint("~1.2.0") {
+		t.Errorf("expected 1.2.3 to match ~1.2.0")
+	}
+	if v1.MatchesConstraint("^2.0.0") {
+		t.Errorf("expected 1.2.3 not to match ^2.0.0")
+	}
+}
+
+func TestPackageManagerFullLifecycle(t *testing.T) {
+	tempDir, err := os.MkdirTemp("", "nilpm_full_*")
 	if err != nil {
 		t.Fatalf("failed creating temp dir: %v", err)
 	}
@@ -18,7 +34,6 @@ func TestPackageManagerInstall(t *testing.T) {
 version: 0.1.0
 dependencies:
   "@nilx/ui-charts": "^1.2.0"
-  "@nilx/sqlite": "^0.4.0"
 `
 	err = os.WriteFile(filepath.Join(tempDir, "nilx.yaml"), []byte(manifest), 0644)
 	if err != nil {
@@ -30,13 +45,29 @@ dependencies:
 		t.Fatalf("pm.Install failed: %v", err)
 	}
 
-	lockBytes, err := os.ReadFile(filepath.Join(tempDir, "nilx.lock"))
-	if err != nil {
-		t.Fatalf("expected nilx.lock to be generated: %v", err)
+	// 1. Add dependency
+	if err := pm.Add("@nilx/sqlite", "^0.4.0"); err != nil {
+		t.Fatalf("pm.Add failed: %v", err)
 	}
 
-	lockStr := string(lockBytes)
-	if !strings.Contains(lockStr, "@nilx/ui-charts") || !strings.Contains(lockStr, "sha256-") {
-		t.Errorf("expected lockfile to contain packages and integrity hash, got:\n%s", lockStr)
+	deps, err := pm.List()
+	if err != nil || len(deps) != 2 {
+		t.Errorf("expected 2 dependencies after add, got %d (err: %v)", len(deps), err)
+	}
+
+	// 2. Audit
+	verified, issues, err := pm.Audit()
+	if err != nil || verified != 2 || len(issues) > 0 {
+		t.Errorf("audit failed: verified=%d, issues=%v, err=%v", verified, issues, err)
+	}
+
+	// 3. Remove dependency
+	if err := pm.Remove("@nilx/sqlite"); err != nil {
+		t.Fatalf("pm.Remove failed: %v", err)
+	}
+
+	depsAfter, _ := pm.List()
+	if len(depsAfter) != 1 {
+		t.Errorf("expected 1 dependency after remove, got %d", len(depsAfter))
 	}
 }

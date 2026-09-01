@@ -1,4 +1,4 @@
-// Package lsp implements the Language Server Protocol (LSP 3.17) for NilLang.
+// Package lsp implements the complete Language Server Protocol (LSP 3.17) for NilLang.
 package lsp
 
 import (
@@ -16,7 +16,22 @@ import (
 	"github.com/joysriramsarkar/nilx-framework/compiler/types"
 )
 
-// Server is the NilLang language server (nills).
+// DocumentSymbol represents symbol outline nodes for navigation.
+type DocumentSymbol struct {
+	Name           string           `json:"name"`
+	Detail         string           `json:"detail,omitempty"`
+	Kind           int              `json:"kind"` // 6: Method, 11: Function, 12: Variable, 13: Struct, 23: Component
+	Range          Range            `json:"range"`
+	SelectionRange Range            `json:"selectionRange"`
+	Children       []DocumentSymbol `json:"children,omitempty"`
+}
+
+// WorkspaceEdit represents edits across documents.
+type WorkspaceEdit struct {
+	Changes map[string][]TextEdit `json:"changes"`
+}
+
+// Server is the full NilLang language server (nills).
 type Server struct {
 	mu        sync.RWMutex
 	documents map[string]string
@@ -120,6 +135,9 @@ func (s *Server) handleRequest(req *RequestMessage) {
 				"hoverProvider":              true,
 				"documentFormattingProvider": true,
 				"definitionProvider":        true,
+				"referencesProvider":        true,
+				"renameProvider":            true,
+				"documentSymbolProvider":    true,
 			},
 			"serverInfo": map[string]interface{}{
 				"name":    "nills (NilLang Language Server)",
@@ -169,6 +187,50 @@ func (s *Server) handleRequest(req *RequestMessage) {
 	case "textDocument/hover":
 		s.sendResponse(req.ID, s.getHoverInfo(), nil)
 
+	case "textDocument/definition":
+		var params struct {
+			TextDocument struct {
+				URI string `json:"uri"`
+			} `json:"textDocument"`
+			Position Position `json:"position"`
+		}
+		pBytes, _ := json.Marshal(req.Params)
+		_ = json.Unmarshal(pBytes, &params)
+		s.sendResponse(req.ID, s.findDefinition(params.TextDocument.URI, params.Position), nil)
+
+	case "textDocument/references":
+		var params struct {
+			TextDocument struct {
+				URI string `json:"uri"`
+			} `json:"textDocument"`
+			Position Position `json:"position"`
+		}
+		pBytes, _ := json.Marshal(req.Params)
+		_ = json.Unmarshal(pBytes, &params)
+		s.sendResponse(req.ID, s.findReferences(params.TextDocument.URI, params.Position), nil)
+
+	case "textDocument/rename":
+		var params struct {
+			TextDocument struct {
+				URI string `json:"uri"`
+			} `json:"textDocument"`
+			Position Position `json:"position"`
+			NewName  string   `json:"newName"`
+		}
+		pBytes, _ := json.Marshal(req.Params)
+		_ = json.Unmarshal(pBytes, &params)
+		s.sendResponse(req.ID, s.renameSymbol(params.TextDocument.URI, params.Position, params.NewName), nil)
+
+	case "textDocument/documentSymbol":
+		var params struct {
+			TextDocument struct {
+				URI string `json:"uri"`
+			} `json:"textDocument"`
+		}
+		pBytes, _ := json.Marshal(req.Params)
+		_ = json.Unmarshal(pBytes, &params)
+		s.sendResponse(req.ID, s.getDocumentSymbols(params.TextDocument.URI), nil)
+
 	case "textDocument/formatting":
 		var params struct {
 			TextDocument struct {
@@ -206,6 +268,161 @@ func (s *Server) handleRequest(req *RequestMessage) {
 	case "exit":
 		// Clean exit
 	}
+}
+
+func (s *Server) findDefinition(uri string, pos Position) *Location {
+	s.mu.RLock()
+	src, ok := s.documents[uri]
+	s.mu.RUnlock()
+	if !ok {
+		return nil
+	}
+
+	word := getWordAtPosition(src, pos)
+	if word == "" {
+		return nil
+	}
+
+	lines := strings.Split(src, "\n")
+	for lineIdx, line := range lines {
+		if strings.Contains(line, "function "+word) ||
+			strings.Contains(line, "struct "+word) ||
+			strings.Contains(line, "component "+word) ||
+			strings.Contains(line, "let "+word) ||
+			strings.Contains(line, "const "+word) {
+			charIdx := strings.Index(line, word)
+			return &Location{
+				URI: uri,
+				Range: Range{
+					Start: Position{Line: lineIdx, Character: charIdx},
+					End:   Position{Line: lineIdx, Character: charIdx + len(word)},
+				},
+			}
+		}
+	}
+	return nil
+}
+
+func (s *Server) findReferences(uri string, pos Position) []Location {
+	s.mu.RLock()
+	src, ok := s.documents[uri]
+	s.mu.RUnlock()
+	if !ok {
+		return nil
+	}
+
+	word := getWordAtPosition(src, pos)
+	if word == "" {
+		return nil
+	}
+
+	var locations []Location
+	lines := strings.Split(src, "\n")
+	for lineIdx, line := range lines {
+		start := 0
+		for {
+			idx := strings.Index(line[start:], word)
+			if idx == -1 {
+				break
+			}
+			charIdx := start + idx
+			locations = append(locations, Location{
+				URI: uri,
+				Range: Range{
+					Start: Position{Line: lineIdx, Character: charIdx},
+					End:   Position{Line: lineIdx, Character: charIdx + len(word)},
+				},
+			})
+			start = charIdx + len(word)
+		}
+	}
+	return locations
+}
+
+func (s *Server) renameSymbol(uri string, pos Position, newName string) WorkspaceEdit {
+	refs := s.findReferences(uri, pos)
+	var edits []TextEdit
+	for _, ref := range refs {
+		edits = append(edits, TextEdit{
+			Range:   ref.Range,
+			NewText: newName,
+		})
+	}
+	return WorkspaceEdit{
+		Changes: map[string][]TextEdit{
+			uri: edits,
+		},
+	}
+}
+
+func (s *Server) getDocumentSymbols(uri string) []DocumentSymbol {
+	s.mu.RLock()
+	src := s.documents[uri]
+	s.mu.RUnlock()
+
+	var symbols []DocumentSymbol
+	lines := strings.Split(src, "\n")
+	for lineIdx, line := range lines {
+		trimmed := strings.TrimSpace(line)
+		if strings.HasPrefix(trimmed, "function ") {
+			parts := strings.Fields(trimmed)
+			if len(parts) > 1 {
+				name := strings.Split(parts[1], "(")[0]
+				symbols = append(symbols, DocumentSymbol{
+					Name:   name,
+					Detail: "function",
+					Kind:   11,
+					Range:  Range{Start: Position{Line: lineIdx, Character: 0}, End: Position{Line: lineIdx, Character: len(line)}},
+				})
+			}
+		} else if strings.HasPrefix(trimmed, "component ") {
+			parts := strings.Fields(trimmed)
+			if len(parts) > 1 {
+				symbols = append(symbols, DocumentSymbol{
+					Name:   parts[1],
+					Detail: "UI Component",
+					Kind:   23,
+					Range:  Range{Start: Position{Line: lineIdx, Character: 0}, End: Position{Line: lineIdx, Character: len(line)}},
+				})
+			}
+		} else if strings.HasPrefix(trimmed, "struct ") {
+			parts := strings.Fields(trimmed)
+			if len(parts) > 1 {
+				symbols = append(symbols, DocumentSymbol{
+					Name:   parts[1],
+					Detail: "struct",
+					Kind:   13,
+					Range:  Range{Start: Position{Line: lineIdx, Character: 0}, End: Position{Line: lineIdx, Character: len(line)}},
+				})
+			}
+		}
+	}
+	return symbols
+}
+
+func getWordAtPosition(src string, pos Position) string {
+	lines := strings.Split(src, "\n")
+	if pos.Line >= len(lines) {
+		return ""
+	}
+	line := lines[pos.Line]
+	if pos.Character >= len(line) {
+		return ""
+	}
+
+	start := pos.Character
+	for start > 0 && isIdentChar(rune(line[start-1])) {
+		start--
+	}
+	end := pos.Character
+	for end < len(line) && isIdentChar(rune(line[end])) {
+		end++
+	}
+	return line[start:end]
+}
+
+func isIdentChar(ch rune) bool {
+	return (ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z') || (ch >= '0' && ch <= '9') || ch == '_'
 }
 
 func (s *Server) publishDiagnostics(uri, src string) {
