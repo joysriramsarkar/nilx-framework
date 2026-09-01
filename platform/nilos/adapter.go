@@ -111,6 +111,13 @@ func (a *Adapter) Shutdown() {
 	}
 }
 
+// GetKernelVersion returns the active NilOS kernel version string.
+func (a *Adapter) GetKernelVersion() string {
+	a.mu.RLock()
+	defer a.mu.RUnlock()
+	return a.KernelVersion
+}
+
 // CreateWindow creates a Wayland xdg_surface with Vulkan swapchain.
 func (a *Adapter) CreateWindow(title string, width, height int) error {
 	a.mu.Lock()
