@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/joysriramsarkar/nilx-framework/compiler/ast"
-	"github.com/joysriramsarkar/nilx-framework/compiler/lexer"
+	"github.com/joysriramsarkar/alap-framework/compiler/ast"
+	"github.com/joysriramsarkar/alap-framework/compiler/lexer"
 )
 
 // Parser holds the state needed to parse a token stream.

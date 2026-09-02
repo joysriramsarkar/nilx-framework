@@ -1,4 +1,4 @@
-// Package render provides the 2D software rasterizer and GPU scene graph renderer for NilX UI.
+// Package render provides the 2D software rasterizer and GPU scene graph renderer for Alap UI.
 package render
 
 import (
@@ -10,7 +10,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/joysriramsarkar/nilx-framework/ui/engine"
+	"github.com/joysriramsarkar/alap-framework/ui/engine"
 )
 
 // Canvas represents a 2D drawing surface.

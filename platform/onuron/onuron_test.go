@@ -1,4 +1,4 @@
-package nilos
+package onuron
 
 import (
 	"os"
@@ -7,13 +7,13 @@ import (
 	"testing"
 	"time"
 
-	"github.com/joysriramsarkar/nilx-framework/platform/nilos/nilbus"
-	"github.com/joysriramsarkar/nilx-framework/platform/nilos/nilhal"
-	"github.com/joysriramsarkar/nilx-framework/platform/nilos/nilui"
-	"github.com/joysriramsarkar/nilx-framework/ui/engine"
+	"github.com/joysriramsarkar/alap-framework/platform/onuron/nilbus"
+	"github.com/joysriramsarkar/alap-framework/platform/onuron/nilhal"
+	"github.com/joysriramsarkar/alap-framework/platform/onuron/nilui"
+	"github.com/joysriramsarkar/alap-framework/ui/engine"
 )
 
-func TestNilOSAdapterLifecycle(t *testing.T) {
+func TestOnuronAdapterLifecycle(t *testing.T) {
 	adapter := New()
 	if err := adapter.Init(); err != nil {
 		t.Fatalf("adapter.Init failed: %v", err)
@@ -24,7 +24,7 @@ func TestNilOSAdapterLifecycle(t *testing.T) {
 		t.Errorf("expected notifications capability to be granted")
 	}
 
-	if err := adapter.SendNotification("Welcome", "NilOS Adapter is online"); err != nil {
+	if err := adapter.SendNotification("Welcome", "Onuron Adapter is online"); err != nil {
 		t.Errorf("expected notification to succeed: %v", err)
 	}
 
@@ -42,7 +42,7 @@ func TestNilBusIPC(t *testing.T) {
 	defer client.Close()
 
 	// Test Notification service RPC
-	res, err := client.Call("org.nilos.NotificationService", "Notify", []byte(`{"title":"Test"}`))
+	res, err := client.Call("org.onuron.NotificationService", "Notify", []byte(`{"title":"Test"}`))
 	if err != nil {
 		t.Fatalf("nilbus Call failed: %v", err)
 	}
@@ -53,10 +53,10 @@ func TestNilBusIPC(t *testing.T) {
 
 	// Test Pub/Sub
 	receivedChan := make(chan bool, 1)
-	client.Subscribe("nilos.sensors.accel", func(evt []byte) {
+	client.Subscribe("onuron.sensors.accel", func(evt []byte) {
 		receivedChan <- true
 	})
-	client.Publish("nilos.sensors.accel", []byte("10.0,0.0,0.0"))
+	client.Publish("onuron.sensors.accel", []byte("10.0,0.0,0.0"))
 
 	select {
 	case <-receivedChan:
@@ -67,14 +67,14 @@ func TestNilBusIPC(t *testing.T) {
 }
 
 func TestNilUIRenderer(t *testing.T) {
-	renderer := nilui.NewRenderer("NilXApp", 400, 800)
+	renderer := nilui.NewRenderer("AlapApp", 400, 800)
 
 	tree := engine.NewTree()
 	tree.BeginNode("Column")
 	tree.SetProp("backgroundColor", "#1A1A1A")
 
 	tree.BeginNode("Text")
-	tree.SetProp("text", "NilOS Vulkan UI")
+	tree.SetProp("text", "Onuron Vulkan UI")
 	tree.SetProp("color", "#FFFFFF")
 	tree.SetProp("fontSize", 20.0)
 	tree.EndNode()
@@ -96,7 +96,7 @@ func TestNilUIRenderer(t *testing.T) {
 		t.Fatalf("failed exporting frame JSON: %v", err)
 	}
 
-	if !strings.Contains(jsonStr, "NilOS Vulkan UI") || !strings.Contains(jsonStr, "#176BFF") {
+	if !strings.Contains(jsonStr, "Onuron Vulkan UI") || !strings.Contains(jsonStr, "#176BFF") {
 		t.Errorf("expected frame JSON to contain text and button color, got:\n%s", jsonStr)
 	}
 }
@@ -119,8 +119,8 @@ func TestNilHAL(t *testing.T) {
 	}
 }
 
-func TestNilOSProjectGenerator(t *testing.T) {
-	tempDir, err := os.MkdirTemp("", "nilos_bundle_*")
+func TestOnuronProjectGenerator(t *testing.T) {
+	tempDir, err := os.MkdirTemp("", "onuron_bundle_*")
 	if err != nil {
 		t.Fatalf("failed creating temp dir: %v", err)
 	}
@@ -132,9 +132,9 @@ func TestNilOSProjectGenerator(t *testing.T) {
 		t.Fatalf("adapter.GenerateProject failed: %v", err)
 	}
 
-	manifestBytes, err := os.ReadFile(filepath.Join(tempDir, "nilos", "app.nilxmanifest"))
+	manifestBytes, err := os.ReadFile(filepath.Join(tempDir, "onuron", "app.alapmanifest"))
 	if err != nil {
-		t.Fatalf("expected app.nilxmanifest to exist: %v", err)
+		t.Fatalf("expected app.alapmanifest to exist: %v", err)
 	}
 
 	if !strings.Contains(string(manifestBytes), "DisplayServer = wayland") ||
@@ -142,9 +142,9 @@ func TestNilOSProjectGenerator(t *testing.T) {
 		t.Errorf("expected manifest to specify wayland and vulkan, got:\n%s", string(manifestBytes))
 	}
 
-	launcherBytes, err := os.ReadFile(filepath.Join(tempDir, "nilos", "nilos-launcher.sh"))
+	launcherBytes, err := os.ReadFile(filepath.Join(tempDir, "onuron", "onuron-launcher.sh"))
 	if err != nil {
-		t.Fatalf("expected nilos-launcher.sh to exist: %v", err)
+		t.Fatalf("expected onuron-launcher.sh to exist: %v", err)
 	}
 
 	if !strings.Contains(string(launcherBytes), "wayland-0") {

@@ -1,4 +1,4 @@
-// Package nilbus implements the distributed IPC client for NilOS system services.
+// Package nilbus implements the distributed IPC client for Onuron (Onuron OS) system services.
 package nilbus
 
 import (
@@ -65,14 +65,14 @@ func NewClient(customSocketPath string) *Client {
 	}
 }
 
-// Connect opens the IPC transport to the NilOS system bus.
+// Connect opens the IPC transport to the Onuron system bus.
 func (c *Client) Connect() error {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 
 	conn, err := net.DialTimeout("unix", c.socketPath, 200*time.Millisecond)
 	if err != nil {
-		// Fallback to local in-process bus when running outside NilOS kernel environment
+		// Fallback to local in-process bus when running outside Onuron kernel environment
 		c.isMock = true
 		c.connected = true
 		c.registerDefaultServices()
@@ -87,7 +87,7 @@ func (c *Client) Connect() error {
 	return nil
 }
 
-// Call invokes a remote method on a named NilOS system service.
+// Call invokes a remote method on a named Onuron system service.
 func (c *Client) Call(service, method string, payload []byte) ([]byte, error) {
 	c.mu.RLock()
 	if !c.connected {
@@ -182,21 +182,23 @@ func (c *Client) Close() {
 }
 
 func (c *Client) registerDefaultServices() {
-	// Builtin NilOS notification service mock
-	c.inProcessBus["org.nilos.NotificationService"] = func(method string, payload []byte) ([]byte, error) {
+	notifyHandler := func(method string, payload []byte) ([]byte, error) {
 		if method == "Notify" {
 			return []byte("{\"status\":\"posted\"}"), nil
 		}
 		return nil, fmt.Errorf("unknown method %s", method)
 	}
+	c.inProcessBus["org.onuron.NotificationService"] = notifyHandler
+	c.inProcessBus["org.nilos.NotificationService"] = notifyHandler
 
-	// Builtin NilOS HAL sensor service mock
-	c.inProcessBus["org.nilos.HAL"] = func(method string, payload []byte) ([]byte, error) {
+	halHandler := func(method string, payload []byte) ([]byte, error) {
 		if method == "ReadSensor" {
 			return []byte("{\"x\":0.0,\"y\":9.81,\"z\":0.0}"), nil
 		}
 		return nil, fmt.Errorf("unknown method %s", method)
 	}
+	c.inProcessBus["org.onuron.HAL"] = halHandler
+	c.inProcessBus["org.nilos.HAL"] = halHandler
 }
 
 func (c *Client) readLoop() {

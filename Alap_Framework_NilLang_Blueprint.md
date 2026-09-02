@@ -1,20 +1,20 @@
-# NilX Framework + NilLang — Complete Blueprint
+# Alap Framework + NilLang — Complete Blueprint
 Version: 0.1 (architecture draft)
-Target platforms: NilOS, Android, iOS, Linux
+Target platforms: Onuron, Android, iOS, Linux
 Interpretation: "ISO" in the request is treated as iOS. A bootable ISO image target can be added separately.
 
 ---
 
 ## 0. Executive definition
 
-**NilX** is a cross-platform application framework whose primary application language is **NilLang**.
+**Alap** is a cross-platform application framework whose primary application language is **NilLang**.
 
 NilLang combines:
 - ArkTS-style declarative UI and component model
 - TypeScript-style static typing and familiar syntax
 - Go-inspired concurrency, channels, packages, tooling simplicity and explicit error handling
 - A platform-neutral standard API (`nil.*`)
-- Native extension ABI for NilOS, Android, iOS and Linux
+- Native extension ABI for Onuron, Android, iOS and Linux
 
 The target is:
 
@@ -24,7 +24,7 @@ The target is:
                     │ .nil files + resources        │
                     └──────────────┬───────────────┘
                                    │
-                         nilc / NilX compiler
+                         nilc / Alap compiler
                                    │
               ┌────────────────────┼────────────────────┐
               │                    │                    │
@@ -42,7 +42,7 @@ The target is:
                                    │
               ┌────────────────────┼─────────────────────┐
               │                    │                     │
-           NilOS                Android                  iOS
+           Onuron                Android                  iOS
               │                    │                     │
         Wayland/Vulkan      Surface/NDK/JNI        Metal/Swift/ObjC
               │                    │                     │
@@ -55,7 +55,7 @@ The target is:
 The same source project should produce:
 
 ```text
-NilOS   -> .nilapp
+Onuron  -> .nilax
 Android -> .apk / .aab
 iOS     -> .app / .ipa / XCFramework
 Linux   -> AppImage / Flatpak / native bundle
@@ -67,7 +67,7 @@ Linux   -> AppImage / Flatpak / native bundle
 
 Recommended names:
 
-- Framework: `NilX`
+- Framework: `Alap`
 - Language: `NilLang`
 - compiler: `nilc`
 - package/build tool: `nil`
@@ -81,7 +81,7 @@ Recommended names:
 - package registry: `nilpm`
 - bytecode: `.nabc`
 - UI intermediate format: `.nui`
-- application manifest: `nilx.yaml`
+- application manifest: `alap.yaml`
 
 Example:
 
@@ -91,7 +91,7 @@ cd counter
 nil run
 nil build android
 nil build ios
-nil build nilos
+nil build onuron
 nil build linux
 ```
 
@@ -114,9 +114,9 @@ nil build linux
 
 ---
 
-# 3. NilOS integration with the existing repository
+# 3. Onuron integration with the existing repository
 
-The current NilOS repository already has the correct conceptual places for this framework:
+The current Onuron repository already has the correct conceptual places for this framework:
 
 - `runtime/nilui` — declarative UI foundation
 - `runtime/nilui-gpu` — Vulkan renderer
@@ -127,14 +127,14 @@ The current NilOS repository already has the correct conceptual places for this 
 - `android/` — Android compatibility layer
 - Rust workspace under `Cargo.toml`
 
-Therefore NilX should become a layer above the existing OS runtime, not replace NilOS kernel/HAL.
+Therefore Alap should become a layer above the existing OS runtime, not replace Onuron kernel/HAL.
 
 Recommended addition:
 
 ```text
-nilos/
+onuron/
 ├── framework/
-│   └── nilx/
+│   └── alap/
 │       ├── compiler/
 │       ├── runtime/
 │       ├── ui/
@@ -145,7 +145,7 @@ nilos/
 │       ├── tools/
 │       └── templates/
 ├── platform/
-│   ├── nilos/
+│   ├── onuron/
 │   ├── android/
 │   ├── ios/
 │   └── linux/
@@ -156,7 +156,7 @@ Keep the existing Rust system services. Use Go heavily for developer tooling, se
 
 ---
 
-# 4. NilX architecture layers
+# 4. Alap architecture layers
 
 ## Layer A — Application source
 
@@ -172,11 +172,11 @@ src/
   native/
     android/
     ios/
-    nilos/
+    onuron/
     linux/
 assets/
 resources/
-nilx.yaml
+alap.yaml
 ```
 
 ## Layer B — Language frontend
@@ -250,7 +250,7 @@ Where:
 ## Layer F — graphics
 
 Primary:
-- Vulkan on NilOS/Linux/Android where available
+- Vulkan on Onuron/Linux/Android where available
 - Metal on iOS
 - optional OpenGL ES fallback
 - software rasterizer for CI/headless
@@ -510,7 +510,7 @@ Allowed:
 
 ```text
 let count = 10
-let title = "NilOS"
+let title = "Onuron"
 let enabled = true
 ```
 
@@ -723,7 +723,7 @@ App:
 ```text
 app MyApp {
   window {
-    title = "NilOS Demo"
+    title = "Onuron Demo"
     size = .fit
   }
 
@@ -897,7 +897,7 @@ Grid(columns: 2) {
 Prefer modifiers instead of CSS.
 
 ```text
-Text("NilOS")
+Text("Onuron")
   .font(size: 24, weight: .bold)
   .foreground(.primary)
   .padding(horizontal: 16)
@@ -1085,7 +1085,7 @@ let camera = await capabilities.camera.request()
 
 The application never directly opens privileged device files.
 
-NilOS should connect these capabilities to its existing sandbox/permission broker.
+Onuron should connect these capabilities to its existing sandbox/permission broker.
 
 ---
 
@@ -1170,7 +1170,7 @@ Go is especially suitable for:
 - portable plugins
 - selected native/system adapters
 
-Go's mobile ecosystem already has Android/iOS binding/build tooling, although the official `golang/mobile` repository labels it experimental; NilX should therefore define its own stable ABI instead of making gomobile's generated API the framework ABI. citeturn649263search0turn649263search1
+Go's mobile ecosystem already has Android/iOS binding/build tooling, although the official `golang/mobile` repository labels it experimental; Alap should therefore define its own stable ABI instead of making gomobile's generated API the framework ABI. citeturn649263search0turn649263search1
 
 ---
 
@@ -1454,7 +1454,7 @@ GPU command encoder
 Vulkan / Metal / GLES
 ```
 
-Use the existing NilOS Vulkan UI renderer as the first backend foundation rather than creating a second graphics stack. The repository already identifies `nilui-gpu` as a Vulkan 2D renderer. citeturn759431view0
+Use the existing Onuron Vulkan UI renderer as the first backend foundation rather than creating a second graphics stack. The repository already identifies `nilui-gpu` as a Vulkan 2D renderer. citeturn759431view0
 
 Linux:
 
@@ -1471,7 +1471,7 @@ Activity
   ↓
 Surface
   ↓
-NilX Android adapter
+Alap Android adapter
   ↓
 graphics backend
 ```
@@ -1483,12 +1483,12 @@ UIViewController
   ↓
 CAMetalLayer
   ↓
-NilX iOS adapter
+Alap iOS adapter
   ↓
 Metal renderer
 ```
 
-NilOS:
+Onuron:
 
 ```text
 nilshell / Wayland
@@ -1546,8 +1546,8 @@ The application only sees this interface.
 APK
 ├── AndroidManifest.xml
 ├── Kotlin/Java bootstrap
-├── libnilx_runtime.so
-├── libnilx_app.so
+├── libalap_runtime.so
+├── libalap_app.so
 └── assets/
 ```
 
@@ -1556,7 +1556,7 @@ Flow:
 ```text
 Kotlin Activity
       ↓ JNI/C ABI
-NilX Runtime
+Alap Runtime
       ↓
 NilLang app
       ↓
@@ -1586,7 +1586,7 @@ Do not attempt to run inside an Android application by pretending Linux/Wayland 
 ```text
 Xcode project
 ├── Swift/ObjC bootstrap
-├── NilX.xcframework
+├── Alap.xcframework
 ├── app bundle
 └── resources
 ```
@@ -1596,7 +1596,7 @@ Flow:
 ```text
 UIViewController
       ↓
-NilX iOS Adapter
+Alap iOS Adapter
       ↓
 NilRT
       ↓
@@ -1652,18 +1652,18 @@ Linux is also the easiest desktop debugging target.
 
 ---
 
-# 41. NilOS architecture
+# 41. Onuron architecture
 
-NilOS output:
+Onuron output:
 
 ```text
-myapp.nilapp
+myapp.nilax
 ```
 
 Example package:
 
 ```text
-myapp.nilapp/
+myapp.nilax/
 ├── manifest.json
 ├── app.nabc
 ├── ui.nui
@@ -1675,7 +1675,7 @@ myapp.nilapp/
 Installation:
 
 ```bash
-nilpkg install myapp.nilapp
+nilpkg install myapp.nilax
 ```
 
 Sandbox:
@@ -1689,7 +1689,7 @@ read-only system
 private app data
 ```
 
-Connect this to NilOS's existing `nilrt` security/runtime layer rather than bypassing it. The existing repository already describes namespace sandboxing, seccomp and a permission broker. citeturn759431view0
+Connect this to Onuron's existing `nilrt` security/runtime layer rather than bypassing it. The existing repository already describes namespace sandboxing, seccomp and a permission broker. citeturn759431view0
 
 ---
 
@@ -1704,7 +1704,7 @@ nil build
 Targets:
 
 ```bash
-nil build nilos
+nil build onuron
 nil build android
 nil build ios
 nil build linux
@@ -1729,7 +1729,7 @@ language:
   version: "0.1"
 
 targets:
-  - nilos-arm64
+  - onuron-arm64
   - android-arm64
   - ios-arm64
   - linux-x86_64
@@ -1778,7 +1778,7 @@ Examples:
 nil create hello
 nil run --target linux
 nil run --target android
-nil run --target nilos
+nil run --target onuron
 nil check
 nil test
 nil package
@@ -1886,8 +1886,8 @@ render -> screenshot -> compare
 Platform matrix:
 
 ```text
-NilOS x86_64
-NilOS ARM64
+Onuron x86_64
+Onuron ARM64
 Android emulator
 Android ARM64 device
 iOS simulator
@@ -1932,7 +1932,7 @@ These are engineering targets, not guarantees.
 Registry:
 
 ```text
-registry.nilos.dev
+registry.onuron.dev
 ```
 
 Package:
@@ -2087,13 +2087,13 @@ sensors
 telephony
 ```
 
-NilOS can enforce these with its existing security architecture.
+Onuron can enforce these with its existing security architecture.
 
 ---
 
 # 55. Distributed APIs
 
-For NilOS's SoftBus layer:
+For Onuron's SoftBus layer:
 
 ```text
 device.discover()
@@ -2111,7 +2111,7 @@ let stream = await devices.first.openCamera()
 
 The application sees a capability, not a socket.
 
-This matches the existing NilOS direction around SoftBus/P2P IPC. citeturn759431view0
+This matches the existing Onuron direction around SoftBus/P2P IPC. citeturn759431view0
 
 ---
 
@@ -2158,7 +2158,7 @@ Do not make WASM mandatory for the UI path in v1; native UI rendering should rem
 Recommended:
 
 ```text
-nilx/
+alap/
 ├── compiler/
 │   ├── lexer/
 │   ├── parser/
@@ -2192,7 +2192,7 @@ nilx/
 │   ├── generated/
 │   └── versioning/
 ├── platform/
-│   ├── nilos/
+│   ├── onuron/
 │   ├── android/
 │   ├── ios/
 │   └── linux/
@@ -2266,7 +2266,7 @@ Then port the same app to:
 
 ```bash
 nil run --target android
-nil run --target nilos
+nil run --target onuron
 nil run --target ios
 ```
 
@@ -2321,7 +2321,7 @@ NIR
    └── metadata.json
    ↓
 platform packager
-   ├── NilOS package
+   ├── Onuron package
    ├── Android APK/AAB
    ├── iOS Xcode app
    └── Linux bundle
@@ -2329,9 +2329,9 @@ platform packager
 
 ---
 
-# 63. Android/iOS/Linux/NilOS support matrix
+# 63. Android/iOS/Linux/Onuron support matrix
 
-| Capability | NilOS | Android | iOS | Linux |
+| Capability | Onuron | Android | iOS | Linux |
 |---|---|---|---|---|
 | Declarative UI | yes | yes | yes | yes |
 | Vulkan | yes | yes* | no | yes |
@@ -2365,7 +2365,7 @@ CLI build tool
 
 ArkUI-X publicly follows that pattern and supplies separate Android/iOS adaptation repositories, an app framework and a CLI. citeturn288101search1turn288101search2
 
-Do NOT make NilX depend on ArkUI-X's internal application model.
+Do NOT make Alap depend on ArkUI-X's internal application model.
 
 ---
 
@@ -2378,12 +2378,12 @@ Do not make:
 - Android/iOS-specific UI behavior leak into `nil.ui`
 - GPL-incompatible third-party code part of the framework without license review
 
-NilOS currently declares GPLv3 for its repository. citeturn759431view0
+Onuron currently declares GPLv3 for its repository. citeturn759431view0
 
-For NilX itself, choose licensing carefully:
+For Alap itself, choose licensing carefully:
 - compiler/runtime: Apache-2.0 or MIT
 - optional copyleft adapters: separate modules
-- NilOS-specific integration: can follow NilOS licensing constraints
+- Onuron-specific integration: can follow Onuron licensing constraints
 
 A legal/license review is required before importing third-party code.
 
@@ -2439,7 +2439,7 @@ Deliver:
 - desktop packaging
 - hot reload
 
-## Phase 4 — NilOS
+## Phase 4 — Onuron
 
 Deliver:
 - Wayland integration
@@ -2480,18 +2480,18 @@ Deliver:
 
 # 67. First 12 repositories/modules
 
-1. `nilx-compiler`
-2. `nilx-runtime`
-3. `nilx-ui`
-4. `nilx-gfx`
-5. `nilx-abi`
-6. `nilx-platform-nilos`
-7. `nilx-platform-android`
-8. `nilx-platform-ios`
-9. `nilx-platform-linux`
-10. `nilx-cli`
-11. `nilx-lsp`
-12. `nilx-packages`
+1. `alap-compiler`
+2. `alap-runtime`
+3. `alap-ui`
+4. `alap-gfx`
+5. `alap-abi`
+6. `alap-platform-onuron`
+7. `alap-platform-android`
+8. `alap-platform-ios`
+9. `alap-platform-linux`
+10. `alap-cli`
+11. `alap-lsp`
+12. `alap-packages`
 
 At the start, keep them in one monorepo to avoid synchronization overhead.
 
@@ -2500,7 +2500,7 @@ At the start, keep them in one monorepo to avoid synchronization overhead.
 # 68. Exact v0.1 repository layout
 
 ```text
-nilx/
+alap/
 ├── go.work
 ├── go.mod
 ├── LICENSE
@@ -2527,7 +2527,7 @@ nilx/
 │   └── include/nil_abi.h
 ├── platform/
 │   ├── linux/
-│   ├── nilos/
+│   ├── onuron/
 │   ├── android/
 │   └── ios/
 ├── cli/
@@ -2546,7 +2546,7 @@ nilx/
 `go.mod`:
 
 ```go
-module github.com/joysriramsarkar/nilx
+module github.com/joysriramsarkar/alap
 
 go 1.26
 ```
@@ -2743,7 +2743,7 @@ Mobile default:
 SQLite
 ```
 
-NilOS default:
+Onuron default:
 
 ```text
 SQLite / RocksDB optional
@@ -2807,13 +2807,13 @@ No application should need to know how the value was obtained.
 
 # 78. System integration
 
-NilOS-only extensions:
+Onuron-only extensions:
 
 ```text
-nil.nilos.softbus
-nil.nilos.package
-nil.nilos.security
-nil.nilos.services
+nil.onuron.softbus
+nil.onuron.package
+nil.onuron.security
+nil.onuron.services
 ```
 
 These should be optional imports.
@@ -2821,7 +2821,7 @@ These should be optional imports.
 Example:
 
 ```text
-try import nil.nilos.softbus
+try import nil.onuron.softbus
 ```
 
 so Android/iOS/Linux builds can still compile with a fallback.
@@ -2831,7 +2831,7 @@ so Android/iOS/Linux builds can still compile with a fallback.
 # 79. Build manifest example
 
 ```yaml
-id: dev.nilos.demo
+id: dev.onuron.demo
 name: Nil Demo
 version: 0.1.0
 
@@ -2843,7 +2843,7 @@ ui:
   targetRefreshRate: 120
 
 targets:
-  nilos:
+  onuron:
     architectures: [arm64, x86_64]
 
   android:
@@ -2867,7 +2867,7 @@ features:
 
 # 80. Build pipeline by platform
 
-## NilOS
+## Onuron
 
 ```text
 nilc
@@ -2878,7 +2878,7 @@ nilrt + nilui
  ↓
 nilpkg package
  ↓
-signed .nilapp
+signed .nilax
 ```
 
 ## Android
@@ -2940,7 +2940,7 @@ The platform-specific pieces are intentionally small:
           thin platform layer
       ┌───────────┼───────────┐
       │           │           │
-    NilOS      Android       iOS
+    Onuron      Android       iOS
       │           │           │
    Linux-ish   Android OS   Darwin
 ```
@@ -2952,10 +2952,10 @@ That is the key architectural property.
 # 82. Critical technical constraints
 
 1. Do not target "all phones" initially.
-2. Start with one Android device family + x86_64 Linux + NilOS x86_64.
-3. Add ARM64 NilOS next.
+2. Start with one Android device family + x86_64 Linux + Onuron x86_64.
+3. Add ARM64 Onuron next.
 4. Add iOS only after the language/runtime ABI is stable.
-5. Do not rewrite NilOS's Rust services merely to satisfy a Go language strategy.
+5. Do not rewrite Onuron's Rust services merely to satisfy a Go language strategy.
 6. Keep native API capability-oriented.
 7. Keep the UI tree platform-neutral.
 8. Make the compiler and package manager reproducible.
@@ -3012,8 +3012,8 @@ Week 8:
   Vulkan renderer
 
 Week 9:
-  NilOS adapter
-  `.nilapp` package
+  Onuron adapter
+  `.nilax` package
 
 Week 10:
   Android bootstrap
@@ -3059,7 +3059,7 @@ The final stack should be:
 │ Vulkan • Metal • GLES • Software                              │
 ├───────────────────────────────────────────────────────────────┤
 │                        Platform ABI                           │
-│ NilOS • Android • iOS • Linux                                 │
+│ Onuron • Android • iOS • Linux                                 │
 └───────────────────────────────────────────────────────────────┘
 ```
 
@@ -3076,18 +3076,18 @@ can naturally write NilLang
         ↓
 and get a stable app ABI
         ↓
-that is native on NilOS
+that is native on Onuron
         ↓
 while using thin adapters on Android/iOS/Linux.
 ```
 
-That gives NilOS a real native application ecosystem instead of making the OS permanently dependent on a compatibility layer.
+That gives Onuron a real native application ecosystem instead of making the OS permanently dependent on a compatibility layer.
 
 ---
 
-# 85. Definition of "done" for NilX 1.0
+# 85. Definition of "done" for Alap 1.0
 
-NilX 1.0 is complete only when this exact app can be built from one source tree:
+Alap 1.0 is complete only when this exact app can be built from one source tree:
 
 ```nil
 import { App, Column, Text, Button } from "nil/ui"
@@ -3097,7 +3097,7 @@ app Hello {
 
   build() {
     Column {
-      Text("Hello from NilX")
+      Text("Hello from Alap")
       Text(count.toString())
 
       Button("Increment") {
@@ -3111,7 +3111,7 @@ app Hello {
 And:
 
 ```bash
-nil build nilos
+nil build onuron
 nil build android
 nil build ios
 nil build linux

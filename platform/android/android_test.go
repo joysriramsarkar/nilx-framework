@@ -26,10 +26,10 @@ func TestAndroidProjectGenerator(t *testing.T) {
 		t.Errorf("expected settings.gradle.kts with :app include, got: %s", string(settings))
 	}
 
-	// Verify NilXActivity.kt
-	activity, err := os.ReadFile(filepath.Join(tempDir, "app", "src", "main", "java", "io", "nilx", "app", "NilXActivity.kt"))
-	if err != nil || !strings.Contains(string(activity), "class NilXActivity") {
-		t.Errorf("expected NilXActivity.kt generated, got: %s", string(activity))
+	// Verify AlapActivity.kt
+	activity, err := os.ReadFile(filepath.Join(tempDir, "app", "src", "main", "java", "io", "alap", "app", "AlapActivity.kt"))
+	if err != nil || !strings.Contains(string(activity), "class AlapActivity") {
+		t.Errorf("expected AlapActivity.kt generated, got: %s", string(activity))
 	}
 
 	// Verify bundled bytecode in assets

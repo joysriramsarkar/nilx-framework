@@ -1,4 +1,4 @@
-// Package engine provides the core UI tree model, reactive state binding, and rendering abstractions for NilX.
+// Package engine provides the core UI tree model, reactive state binding, and rendering abstractions for Alap.
 package engine
 
 import (

@@ -1,4 +1,4 @@
-// Package animation provides timing curves, spring physics, and interpolators for NilX UI.
+// Package animation provides timing curves, spring physics, and interpolators for Alap UI.
 package animation
 
 import (

@@ -20,11 +20,11 @@ func TestIOSProjectGenerator(t *testing.T) {
 		t.Fatalf("GenerateProject failed: %v", err)
 	}
 
-	// Verify NilXViewController.swift
-	vcPath := filepath.Join(tempDir, "ios", adapter.AppName, "NilXViewController.swift")
+	// Verify AlapViewController.swift
+	vcPath := filepath.Join(tempDir, "ios", adapter.AppName, "AlapViewController.swift")
 	vcContent, err := os.ReadFile(vcPath)
-	if err != nil || !strings.Contains(string(vcContent), "class NilXViewController") {
-		t.Errorf("expected NilXViewController.swift generated, got: %s", string(vcContent))
+	if err != nil || !strings.Contains(string(vcContent), "class AlapViewController") {
+		t.Errorf("expected AlapViewController.swift generated, got: %s", string(vcContent))
 	}
 
 	// Verify Info.plist

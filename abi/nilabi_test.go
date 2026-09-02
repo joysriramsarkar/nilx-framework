@@ -4,9 +4,9 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/joysriramsarkar/nilx-framework/compiler/codegen"
-	"github.com/joysriramsarkar/nilx-framework/compiler/lexer"
-	"github.com/joysriramsarkar/nilx-framework/compiler/parser"
+	"github.com/joysriramsarkar/alap-framework/compiler/codegen"
+	"github.com/joysriramsarkar/alap-framework/compiler/lexer"
+	"github.com/joysriramsarkar/alap-framework/compiler/parser"
 )
 
 func TestSerializeDeserializeRoundtrip(t *testing.T) {
@@ -14,7 +14,7 @@ func TestSerializeDeserializeRoundtrip(t *testing.T) {
 component CounterApp {
     build() {
         Column {
-            Text("NilX ABI Test")
+            Text("Alap ABI Test")
             Button("Increment")
         }
     }
@@ -47,7 +47,7 @@ component CounterApp {
 		t.Fatalf("failed to run deserialized bytecode: %v", err)
 	}
 
-	if !strings.Contains(res, "NilX ABI Test") {
-		t.Errorf("expected UI output to contain 'NilX ABI Test', got: %s", res)
+	if !strings.Contains(res, "Alap ABI Test") {
+		t.Errorf("expected UI output to contain 'Alap ABI Test', got: %s", res)
 	}
 }

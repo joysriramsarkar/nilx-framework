@@ -15,7 +15,7 @@ struct Post {
 component Header {
     build() {
         Row {
-            Text("NilX Social")
+            Text("Alap Social")
                 .fontSize(24)
                 .fontWeight("bold")
                 .color("#176BFF")
@@ -134,11 +134,11 @@ function createPost(author: string, content: string): Post {
 }
 
 function main(): void {
-    print("=== NilX Social Feed ===")
+    print("=== Alap Social Feed ===")
     print("")
 
     let p1: Post = createPost("Joy Sarkar", "Building the next generation cross-platform language NilLang!")
-    let p2: Post = createPost("NilOS Core Team", "Vulkan GPU rendering and Wayland compositor integrated into NilX.")
+    let p2: Post = createPost("Onuron Core Team", "Vulkan GPU rendering and Wayland compositor integrated into Alap.")
     let p3: Post = createPost("Mobile Dev", "Android APK and iOS Metal scaffolds are fully operational!")
 
     p1.likes = 42
@@ -160,7 +160,7 @@ function main(): void {
     print("Post 3 by " + p3.author + ": " + p3.content)
     print("")
 
-    print("=== NilX Social Feed Initialized ===")
+    print("=== Alap Social Feed Initialized ===")
 }
 
 main()

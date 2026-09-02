@@ -1,28 +1,28 @@
-# NilX Framework & NilLang
+# Alap Framework & NilLang
 
 <p align="center">
-  <b>A modern cross-platform application framework and language for NilOS, Android, iOS, and Linux.</b>
+  <b>A modern cross-platform application framework and language for Onuron, Android, iOS, and Linux.</b>
 </p>
 
 ---
 
 ## Overview
 
-**NilX** is a next-generation application framework powered by **NilLang**—a language combining:
+**Alap** is a next-generation application framework powered by **NilLang**—a language combining:
 - **ArkTS / ArkUI-inspired Declarative UI** with reactive component hierarchies.
 - **TypeScript-style static typing** and clear grammar.
 - **Go-inspired Concurrency** with tasks, actors, and channels.
-- **Multi-Platform Native Adapters** supporting NilOS, Android (JNI/NDK), iOS (Metal/Swift), and Linux (Wayland/X11/Flatpak).
+- **Multi-Platform Native Adapters** supporting Onuron (Onuron OS), Android (JNI/NDK), iOS (Metal/Swift), and Linux (Wayland/X11/Flatpak).
 
 ---
 
 ## Project Architecture
 
 ```text
-nilx-framework/
+alap-framework/
 ├── abi/            # Stable C ABI boundary & Cgo bridge (nilabi.h)
 ├── cmd/
-│   ├── nil/        # NilX project CLI (init, run, build, test, fmt, repl, pm)
+│   ├── nil/        # Alap project CLI (init, run, build, test, fmt, repl, pm)
 │   ├── nilc/       # NilLang bytecode compiler CLI
 │   └── nills/      # Language Server Protocol daemon (LSP 3.17)
 ├── compiler/
@@ -35,12 +35,12 @@ nilx-framework/
 │   ├── parser/     # Recursive-descent parser
 │   └── types/      # Static type checker
 ├── pkg/
-│   └── manager/    # NilPM package & lockfile manager (nilx.lock)
+│   └── manager/    # NilPM package & lockfile manager (alap.yaml / alap.lock)
 ├── platform/
 │   ├── android/    # Android Studio / Gradle project generator & JNI bridge
 │   ├── ios/        # iOS Swift / Metal layer view hierarchy generator
 │   ├── linux/      # Linux AppImage / Flatpak desktop packager
-│   └── nilos/      # NilOS native .nilapp bundle & Vulkan / Wayland adapter
+│   └── onuron/     # Onuron native .nilax bundle & Vulkan / Wayland adapter
 ├── runtime/
 │   ├── actor/      # Actor concurrency & mailbox message passing
 │   ├── repl/       # Interactive REPL
@@ -76,8 +76,8 @@ nil repl
 
 ### 3. Build for Multiple Platforms
 ```bash
-# NilOS native package (.nilapp)
-nil build nilos
+# Onuron native package (.nilax)
+nil build onuron
 
 # Android Studio Gradle Project
 nil build android
@@ -108,4 +108,4 @@ nil pm install
 
 ## License
 
-MIT License © 2026 Joy Sarkar / NilOS Project
+MIT License © 2026 Joy Sarkar / Onuron Project

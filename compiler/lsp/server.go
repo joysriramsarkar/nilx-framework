@@ -10,10 +10,10 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/joysriramsarkar/nilx-framework/compiler/formatter"
-	"github.com/joysriramsarkar/nilx-framework/compiler/lexer"
-	"github.com/joysriramsarkar/nilx-framework/compiler/parser"
-	"github.com/joysriramsarkar/nilx-framework/compiler/types"
+	"github.com/joysriramsarkar/alap-framework/compiler/formatter"
+	"github.com/joysriramsarkar/alap-framework/compiler/lexer"
+	"github.com/joysriramsarkar/alap-framework/compiler/parser"
+	"github.com/joysriramsarkar/alap-framework/compiler/types"
 )
 
 // DocumentSymbol represents symbol outline nodes for navigation.

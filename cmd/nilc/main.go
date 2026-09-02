@@ -13,11 +13,11 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/joysriramsarkar/nilx-framework/compiler/codegen"
-	"github.com/joysriramsarkar/nilx-framework/compiler/lexer"
-	"github.com/joysriramsarkar/nilx-framework/compiler/parser"
-	"github.com/joysriramsarkar/nilx-framework/compiler/types"
-	"github.com/joysriramsarkar/nilx-framework/runtime/vm"
+	"github.com/joysriramsarkar/alap-framework/compiler/codegen"
+	"github.com/joysriramsarkar/alap-framework/compiler/lexer"
+	"github.com/joysriramsarkar/alap-framework/compiler/parser"
+	"github.com/joysriramsarkar/alap-framework/compiler/types"
+	"github.com/joysriramsarkar/alap-framework/runtime/vm"
 )
 
 var (
@@ -30,7 +30,7 @@ var (
 
 func main() {
 	flag.Usage = func() {
-		fmt.Fprintf(os.Stderr, `nilc — NilLang Compiler (NilX Framework)
+		fmt.Fprintf(os.Stderr, `nilc — NilLang Compiler (Alap Framework)
 
 Usage:
   nilc -in <file.nil> [options]

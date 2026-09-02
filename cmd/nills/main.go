@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/joysriramsarkar/nilx-framework/compiler/lsp"
+	"github.com/joysriramsarkar/alap-framework/compiler/lsp"
 )
 
 func main() {

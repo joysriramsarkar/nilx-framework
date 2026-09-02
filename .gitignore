@@ -8,8 +8,10 @@ build/
 *.dylib
 *.a
 
-# Bytecode build output
+# Bytecode and package build output
 *.nabc
+*.nilax
+*.nilapp
 
 # IDE / OS files
 .vscode/

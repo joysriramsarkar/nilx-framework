@@ -1,4 +1,4 @@
-// Package ios implements the NilX platform adapter for iOS.
+// Package ios implements the Alap platform adapter for iOS.
 // It generates Swift/Metal UI scaffolding and Objective-C bridge bindings.
 package ios
 
@@ -17,8 +17,8 @@ type Adapter struct {
 func New() *Adapter {
 	return &Adapter{
 		MinVersion: "16.0",
-		BundleID:   "io.nilx.app",
-		AppName:    "NilXApp",
+		BundleID:   "io.alap.app",
+		AppName:    "AlapApp",
 	}
 }
 
@@ -35,13 +35,13 @@ func (a *Adapter) GenerateProject(outputDir string, bytecode []byte) error {
 		}
 	}
 
-	// 1. NilXViewController.swift
-	viewControllerSwift := `// NilXViewController.swift — iOS Native Host for NilX
+	// 1. AlapViewController.swift
+	viewControllerSwift := `// AlapViewController.swift — iOS Native Host for Alap
 import UIKit
 import Metal
 import QuartzCore
 
-public class NilXViewController: UIViewController {
+public class AlapViewController: UIViewController {
 
     private var stackView: UIStackView!
     private var scrollView: UIScrollView!
@@ -49,7 +49,7 @@ public class NilXViewController: UIViewController {
     public override func viewDidLoad() {
         super.viewDidLoad()
         setupUI()
-        loadAndRenderNilXApp()
+        loadAndRenderAlapApp()
     }
 
     private func setupUI() {
@@ -76,7 +76,7 @@ public class NilXViewController: UIViewController {
         ])
     }
 
-    private func loadAndRenderNilXApp() {
+    private func loadAndRenderAlapApp() {
         guard let url = Bundle.main.url(forResource: "main", withExtension: "nabc"),
               let _ = try? Data(contentsOf: url) else {
             renderFallbackUI()
@@ -88,7 +88,7 @@ public class NilXViewController: UIViewController {
 
     private func renderFallbackUI() {
         let titleLabel = UILabel()
-        titleLabel.text = "NilX Mobile App (iOS Native)"
+        titleLabel.text = "Alap Mobile App (iOS Native)"
         titleLabel.font = UIFont.systemFont(ofSize: 24, weight: .bold)
         titleLabel.textColor = UIColor(red: 0.09, green: 0.42, blue: 1.0, alpha: 1.0)
         titleLabel.textAlignment = .center
@@ -112,7 +112,7 @@ public class NilXViewController: UIViewController {
     }
 
     @objc private func handleButtonTap() {
-        let alert = UIAlertController(title: "NilX iOS", message: "Button tapped successfully!", preferredStyle: .alert)
+        let alert = UIAlertController(title: "Alap iOS", message: "Button tapped successfully!", preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: "OK", style: .default))
         present(alert, animated: true)
     }
@@ -129,7 +129,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         window = UIWindow(frame: UIScreen.main.bounds)
-        window?.rootViewController = NilXViewController()
+        window?.rootViewController = AlapViewController()
         window?.makeKeyAndVisible()
         return true
     }
@@ -166,22 +166,22 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 </plist>
 `, a.AppName, a.BundleID)
 
-	// 4. NilXBridge.h
-	bridgeH := `/* NilXBridge.h — iOS C/Objective-C Bridge */
+	// 4. AlapBridge.h
+	bridgeH := `/* AlapBridge.h — iOS C/Objective-C Bridge */
 #pragma once
 #import <Foundation/Foundation.h>
 
-@interface NilXBridge : NSObject
+@interface AlapBridge : NSObject
 + (void)initializeRuntime;
 + (void)dispatchTouchAtX:(float)x y:(float)y;
 @end
 `
 
 	fileMap := map[string]string{
-		filepath.Join(srcDir, "NilXViewController.swift"): viewControllerSwift,
+		filepath.Join(srcDir, "AlapViewController.swift"): viewControllerSwift,
 		filepath.Join(srcDir, "AppDelegate.swift"):        appDelegateSwift,
 		filepath.Join(srcDir, "Info.plist"):               infoPlist,
-		filepath.Join(srcDir, "NilXBridge.h"):             bridgeH,
+		filepath.Join(srcDir, "AlapBridge.h"):             bridgeH,
 	}
 
 	for path, content := range fileMap {

@@ -4,8 +4,8 @@ package types
 import (
 	"fmt"
 
-	"github.com/joysriramsarkar/nilx-framework/compiler/ast"
-	"github.com/joysriramsarkar/nilx-framework/compiler/lexer"
+	"github.com/joysriramsarkar/alap-framework/compiler/ast"
+	"github.com/joysriramsarkar/alap-framework/compiler/lexer"
 )
 
 // ─── Built-in types ───────────────────────────────────────────────────────────

@@ -7,16 +7,16 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/joysriramsarkar/nilx-framework/compiler/codegen"
-	nilcrypto "github.com/joysriramsarkar/nilx-framework/stdlib/crypto"
-	nilfs "github.com/joysriramsarkar/nilx-framework/stdlib/fs"
-	niljson "github.com/joysriramsarkar/nilx-framework/stdlib/json"
-	nillog "github.com/joysriramsarkar/nilx-framework/stdlib/log"
-	nilmath "github.com/joysriramsarkar/nilx-framework/stdlib/math"
-	nilnet "github.com/joysriramsarkar/nilx-framework/stdlib/net"
-	niltime "github.com/joysriramsarkar/nilx-framework/stdlib/time"
-	"github.com/joysriramsarkar/nilx-framework/ui/engine"
-	"github.com/joysriramsarkar/nilx-framework/ui/layout"
+	"github.com/joysriramsarkar/alap-framework/compiler/codegen"
+	nilcrypto "github.com/joysriramsarkar/alap-framework/stdlib/crypto"
+	nilfs "github.com/joysriramsarkar/alap-framework/stdlib/fs"
+	niljson "github.com/joysriramsarkar/alap-framework/stdlib/json"
+	nillog "github.com/joysriramsarkar/alap-framework/stdlib/log"
+	nilmath "github.com/joysriramsarkar/alap-framework/stdlib/math"
+	nilnet "github.com/joysriramsarkar/alap-framework/stdlib/net"
+	niltime "github.com/joysriramsarkar/alap-framework/stdlib/time"
+	"github.com/joysriramsarkar/alap-framework/ui/engine"
+	"github.com/joysriramsarkar/alap-framework/ui/layout"
 )
 
 // ─── Value types ─────────────────────────────────────────────────────────────

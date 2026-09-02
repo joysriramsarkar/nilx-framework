@@ -1,5 +1,5 @@
 // Package lexer implements the NilLang lexer (tokenizer).
-// NilLang is the primary programming language of the NilX framework.
+// NilLang is the primary programming language of the Alap framework.
 package lexer
 
 // TokenType identifies every distinct kind of token.

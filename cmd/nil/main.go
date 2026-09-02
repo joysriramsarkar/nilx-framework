@@ -1,8 +1,8 @@
-// nil — NilX project management CLI
+// nil — Alap project management CLI
 // Usage:
 //   nil init <name>            create a new NilLang project
 //   nil run [file]             compile and run
-//   nil build <platform>       build for platform: nilos|android|ios|linux
+//   nil build <platform>       build for platform: onuron|android|ios|linux
 //   nil check                  type-check all .nil files
 //   nil fmt                    format all .nil files
 //   nil test                   run tests
@@ -17,29 +17,29 @@ import (
 	"text/template"
 	"time"
 
-	"github.com/joysriramsarkar/nilx-framework/compiler/codegen"
-	"github.com/joysriramsarkar/nilx-framework/compiler/formatter"
-	"github.com/joysriramsarkar/nilx-framework/compiler/lexer"
-	"github.com/joysriramsarkar/nilx-framework/compiler/lsp"
-	"github.com/joysriramsarkar/nilx-framework/compiler/parser"
-	"github.com/joysriramsarkar/nilx-framework/compiler/types"
-	"github.com/joysriramsarkar/nilx-framework/pkg/manager"
-	"github.com/joysriramsarkar/nilx-framework/platform/android"
-	"github.com/joysriramsarkar/nilx-framework/platform/ios"
-	"github.com/joysriramsarkar/nilx-framework/platform/linux"
-	"github.com/joysriramsarkar/nilx-framework/platform/nilos"
-	"github.com/joysriramsarkar/nilx-framework/runtime/repl"
-	"github.com/joysriramsarkar/nilx-framework/runtime/vm"
+	"github.com/joysriramsarkar/alap-framework/compiler/codegen"
+	"github.com/joysriramsarkar/alap-framework/compiler/formatter"
+	"github.com/joysriramsarkar/alap-framework/compiler/lexer"
+	"github.com/joysriramsarkar/alap-framework/compiler/lsp"
+	"github.com/joysriramsarkar/alap-framework/compiler/parser"
+	"github.com/joysriramsarkar/alap-framework/compiler/types"
+	"github.com/joysriramsarkar/alap-framework/pkg/manager"
+	"github.com/joysriramsarkar/alap-framework/platform/android"
+	"github.com/joysriramsarkar/alap-framework/platform/ios"
+	"github.com/joysriramsarkar/alap-framework/platform/linux"
+	"github.com/joysriramsarkar/alap-framework/platform/onuron"
+	"github.com/joysriramsarkar/alap-framework/runtime/repl"
+	"github.com/joysriramsarkar/alap-framework/runtime/vm"
 )
 
 const version = "0.1.0-alpha"
 
 // ─── Templates for new projects ───────────────────────────────────────────────
 
-const nilxYaml = `# nilx.yaml — NilX Project Manifest
+const alapYaml = `# alap.yaml — Alap Project Manifest
 name: {{.Name}}
 version: 0.1.0
-description: "A NilX application"
+description: "An Alap application"
 
 entry: src/main.nil
 
@@ -48,7 +48,7 @@ permissions:
   - notifications
 
 targets:
-  nilos:
+  onuron:
     arch: arm64
   android:
     minSdk: 26
@@ -67,24 +67,24 @@ function add(a: i32, b: i32): i32 {
 }
 
 function greet(name: string): void {
-    print("Welcome to NilX, " + name + "!")
+    print("Welcome to Alap, " + name + "!")
 }
 
 function main(): void {
-    print("{{.Name}} is running on NilOS!")
+    print("{{.Name}} is running on Onuron!")
     
     let x: i32 = 10
     let y: i32 = 20
     let sum: i32 = add(x, y)
     print("Sum: " + sum.toString())
     
-    greet("NilOS User")
+    greet("Onuron User")
 }
 
 main()
 `
 
-const appNil = `// App.nil — Root UI component (NilX declarative UI)
+const appNil = `// App.nil — Root UI component (Alap declarative UI)
 @Entry
 @Component
 component App {
@@ -158,8 +158,8 @@ function testAdd(): void {
 }
 
 function testString(): void {
-    let s: string = "Hello " + "NilOS"
-    if s == "Hello NilOS" {
+    let s: string = "Hello " + "Onuron"
+    if s == "Hello Onuron" {
         print("testString: PASSED")
     } else {
         print("testString: FAILED")
@@ -177,7 +177,7 @@ main()
 
 const readme = `# {{.Name}}
 
-A NilX Framework application written in NilLang.
+An Alap Framework application written in NilLang.
 
 ## Getting Started
 
@@ -186,7 +186,7 @@ A NilX Framework application written in NilLang.
 nil run
 
 # Build for NilOS
-nil build nilos
+nil build onuron
 
 # Build for Android
 nil build android
@@ -215,7 +215,7 @@ nil test
 ├── tests/
 │   └── main_test.nil
 ├── assets/
-├── nilx.yaml         # Project manifest
+├── alap.yaml         # Project manifest
 └── README.md
 ` + "```" + `
 `
@@ -289,10 +289,10 @@ func main() {
 		if err := pm.Install(); err != nil {
 			fmt.Printf("nil pm: error: %v\n", err)
 		} else {
-			fmt.Println("✓ Dependencies resolved and locked in nilx.lock")
+			fmt.Println("✓ Dependencies resolved and locked in alap.lock")
 		}
 	case "build":
-		platform := "nilos"
+		platform := "onuron"
 		if len(args) > 0 {
 			platform = args[0]
 		}
@@ -312,7 +312,7 @@ func main() {
 	case "clean":
 		cmdClean()
 	case "version":
-		fmt.Printf("nil (NilX Framework) v%s\n", version)
+		fmt.Printf("nil (Alap Framework) v%s\n", version)
 	case "help", "-h", "--help":
 		printHelp()
 	default:
@@ -323,23 +323,23 @@ func main() {
 }
 
 func printHelp() {
-	fmt.Printf(`nil — NilX Framework Project Tool v%s
+	fmt.Printf(`nil — Alap Framework Project Tool v%s
 
 Commands:
-  nil init <name>         Create a new NilX project
+  nil init <name>         Create a new Alap project
   nil run [file]          Compile and run (default: src/main.nil)
   nil repl                Start interactive NilLang REPL
   nil lsp                 Start Language Server Protocol daemon
   nil pm [install]        Resolve and lock package dependencies
   nil build <platform>    Build for platform:
-                            nilos   → NilOS native app (.nilapp / .nabc)
+                            onuron  → Onuron native app (.nilax / .nabc)
                             android → Android APK / JNI scaffold
                             ios     → iOS app / Metal scaffold
                             linux   → Linux desktop bundle / Flatpak
   nil check               Type-check all .nil source files
   nil test                Run test files (*_test.nil)
   nil fmt                 Format all .nil files
-  nil add <package>       Add package dependency to nilx.yaml
+  nil add <package>       Add package dependency to alap.yaml
   nil clean               Remove build artifacts
   nil version             Print version
 
@@ -347,6 +347,7 @@ Examples:
   nil init my-app
   nil run
   nil repl
+  nil build onuron
   nil build android
   nil build linux
   nil pm install
@@ -363,7 +364,7 @@ func cmdInit(name string) {
 		filepath.Join(name, "src"),
 		filepath.Join(name, "tests"),
 		filepath.Join(name, "assets"),
-		filepath.Join(name, "native", "nilos"),
+		filepath.Join(name, "native", "onuron"),
 		filepath.Join(name, "native", "android"),
 		filepath.Join(name, "native", "ios"),
 		filepath.Join(name, "native", "linux"),
@@ -377,7 +378,7 @@ func cmdInit(name string) {
 
 	data := templateData{Name: name}
 	files := map[string]string{
-		filepath.Join(name, "nilx.yaml"):               nilxYaml,
+		filepath.Join(name, "alap.yaml"):               alapYaml,
 		filepath.Join(name, "src", "main.nil"):          mainNil,
 		filepath.Join(name, "src", "App.nil"):           appNil,
 		filepath.Join(name, "tests", "main_test.nil"):   testNil,
@@ -396,7 +397,7 @@ func cmdInit(name string) {
 		f.Close()
 	}
 
-	fmt.Printf("✓ Created NilX project: %s\n\n", name)
+	fmt.Printf("✓ Created Alap project: %s\n\n", name)
 	fmt.Printf("  cd %s\n", name)
 	fmt.Printf("  nil run\n\n")
 	fmt.Println("Happy coding with NilLang! 🚀")
@@ -419,8 +420,8 @@ func cmdRun(file string) {
 func cmdBuild(platform string) {
 	fmt.Printf("nil: building for %s...\n", platform)
 	switch platform {
-	case "nilos":
-		buildNilOS()
+	case "onuron", "nilos":
+		buildOnuron()
 	case "android":
 		buildAndroid()
 	case "ios":
@@ -428,12 +429,12 @@ func cmdBuild(platform string) {
 	case "linux":
 		buildLinux()
 	default:
-		fmt.Fprintf(os.Stderr, "nil build: unknown platform %q (use: nilos|android|ios|linux)\n", platform)
+		fmt.Fprintf(os.Stderr, "nil build: unknown platform %q (use: onuron|android|ios|linux)\n", platform)
 		os.Exit(1)
 	}
 }
 
-func buildNilOS() {
+func buildOnuron() {
 	var bytecode []byte
 	nils := findNilFiles("src")
 	if len(nils) == 0 {
@@ -446,14 +447,14 @@ func buildNilOS() {
 		}
 	}
 
-	adapter := nilos.New()
+	adapter := onuron.New()
 	outDir := filepath.Join("build")
 	if err := adapter.GenerateProject(outDir, bytecode); err != nil {
-		fmt.Fprintf(os.Stderr, "nil build nilos: error: %v\n", err)
+		fmt.Fprintf(os.Stderr, "nil build onuron: error: %v\n", err)
 		os.Exit(1)
 	}
-	fmt.Printf("✓ Built for NilOS native app → build/nilos/\n")
-	fmt.Printf("  • Manifest: build/nilos/app.nilxmanifest\n")
+	fmt.Printf("✓ Built for Onuron native app (.nilax) → build/onuron/\n")
+	fmt.Printf("  • Manifest: build/onuron/app.alapmanifest\n")
 	fmt.Printf("  • Bytecode bundled: %d bytes in bin/main.nabc\n\n", len(bytecode))
 }
 
@@ -529,7 +530,7 @@ func buildLinux() {
 	}
 	fmt.Printf("✓ Built for Linux desktop → build/linux/\n")
 	fmt.Printf("  • AppDir bundle: build/linux/AppDir\n")
-	fmt.Printf("  • Flatpak manifest: build/linux/org.nilx.app.json\n")
+	fmt.Printf("  • Flatpak manifest: build/linux/org.alap.app.json\n")
 	fmt.Printf("  • Bytecode bundled: %d bytes\n\n", len(bytecode))
 }
 
@@ -650,14 +651,18 @@ func cmdFmt() {
 }
 
 func cmdAdd(pkg string) {
-	manifestPath := "nilx.yaml"
+	manifestPath := "alap.yaml"
 	if _, err := os.Stat(manifestPath); os.IsNotExist(err) {
-		fmt.Printf("nil add: no nilx.yaml found in current directory\n")
-		return
+		if _, err2 := os.Stat("nilx.yaml"); err2 == nil {
+			manifestPath = "nilx.yaml"
+		} else {
+			fmt.Printf("nil add: no alap.yaml found in current directory\n")
+			return
+		}
 	}
 	content, err := os.ReadFile(manifestPath)
 	if err != nil {
-		fmt.Printf("nil add: cannot read nilx.yaml: %v\n", err)
+		fmt.Printf("nil add: cannot read %s: %v\n", manifestPath, err)
 		return
 	}
 	lines := strings.Split(string(content), "\n")
@@ -681,7 +686,7 @@ func cmdAdd(pkg string) {
 	}
 
 	_ = os.WriteFile(manifestPath, []byte(strings.Join(newLines, "\n")), 0644)
-	fmt.Printf("✓ Added dependency %s to nilx.yaml\n", pkg)
+	fmt.Printf("✓ Added dependency %s to %s\n", pkg, manifestPath)
 }
 
 func cmdClean() {

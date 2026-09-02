@@ -1,4 +1,4 @@
-// Package nilhal implements the Hardware Abstraction Layer (HAL) for NilOS devices.
+// Package nilhal implements the Hardware Abstraction Layer (HAL) for Onuron devices.
 package nilhal
 
 import (
@@ -10,7 +10,7 @@ import (
 	"sync"
 )
 
-// SensorKind identifies hardware sensors on NilOS.
+// SensorKind identifies hardware sensors on Onuron.
 type SensorKind int
 
 const (
@@ -37,7 +37,7 @@ type BatteryInfo struct {
 	Health     string  `json:"health"`
 }
 
-// HAL connects to NilOS sysfs nodes and sensor drivers.
+// HAL connects to Onuron sysfs nodes and sensor drivers.
 type HAL struct {
 	mu           sync.RWMutex
 	sysfsPath    string

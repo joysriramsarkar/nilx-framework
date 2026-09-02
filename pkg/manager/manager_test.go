@@ -33,9 +33,9 @@ func TestPackageManagerFullLifecycle(t *testing.T) {
 	manifest := `name: test-app
 version: 0.1.0
 dependencies:
-  "@nilx/ui-charts": "^1.2.0"
+  "@alap/ui-charts": "^1.2.0"
 `
-	err = os.WriteFile(filepath.Join(tempDir, "nilx.yaml"), []byte(manifest), 0644)
+	err = os.WriteFile(filepath.Join(tempDir, "alap.yaml"), []byte(manifest), 0644)
 	if err != nil {
 		t.Fatalf("failed writing manifest: %v", err)
 	}
@@ -46,7 +46,7 @@ dependencies:
 	}
 
 	// 1. Add dependency
-	if err := pm.Add("@nilx/sqlite", "^0.4.0"); err != nil {
+	if err := pm.Add("@alap/sqlite", "^0.4.0"); err != nil {
 		t.Fatalf("pm.Add failed: %v", err)
 	}
 
@@ -62,7 +62,7 @@ dependencies:
 	}
 
 	// 3. Remove dependency
-	if err := pm.Remove("@nilx/sqlite"); err != nil {
+	if err := pm.Remove("@alap/sqlite"); err != nil {
 		t.Fatalf("pm.Remove failed: %v", err)
 	}
 

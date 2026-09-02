@@ -1,4 +1,4 @@
-// Package theme provides color palettes, typography, and styling systems for NilX UI.
+// Package theme provides color palettes, typography, and styling systems for Alap UI.
 package theme
 
 // ColorPalette defines the application color tokens.
@@ -25,7 +25,7 @@ type Theme struct {
 	FontFamily   string       `json:"fontFamily"`
 }
 
-// LightTheme returns the default NilX light theme.
+// LightTheme returns the default Alap light theme.
 func LightTheme() *Theme {
 	return &Theme{
 		IsDark: false,
@@ -48,7 +48,7 @@ func LightTheme() *Theme {
 	}
 }
 
-// DarkTheme returns the default NilX dark theme.
+// DarkTheme returns the default Alap dark theme.
 func DarkTheme() *Theme {
 	return &Theme{
 		IsDark: true,

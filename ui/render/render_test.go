@@ -4,7 +4,7 @@ import (
 	"image/color"
 	"testing"
 
-	"github.com/joysriramsarkar/nilx-framework/ui/engine"
+	"github.com/joysriramsarkar/alap-framework/ui/engine"
 )
 
 func TestCanvasRasterizer(t *testing.T) {

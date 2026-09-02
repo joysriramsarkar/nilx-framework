@@ -1,10 +1,10 @@
-// Package nilos implements the native platform adapter for NilOS.
-// Connects NilX apps directly to NilOS services:
+// Package onuron implements the native platform adapter for Onuron (Onuron OS).
+// Connects Alap apps directly to Onuron services:
 //   - nilui / nilui-gpu (Vulkan renderer & Wayland surface manager)
 //   - nilbus-client (distributed IPC)
 //   - nilhal (hardware & sensor abstraction)
 //   - nilpkg / nilrt (signed sandbox & app lifecycle supervisor)
-package nilos
+package onuron
 
 import (
 	"fmt"
@@ -12,14 +12,14 @@ import (
 	"path/filepath"
 	"sync"
 
-	"github.com/joysriramsarkar/nilx-framework/compiler/codegen"
-	"github.com/joysriramsarkar/nilx-framework/platform/nilos/nilbus"
-	"github.com/joysriramsarkar/nilx-framework/platform/nilos/nilhal"
-	"github.com/joysriramsarkar/nilx-framework/platform/nilos/nilui"
-	"github.com/joysriramsarkar/nilx-framework/runtime/vm"
+	"github.com/joysriramsarkar/alap-framework/compiler/codegen"
+	"github.com/joysriramsarkar/alap-framework/platform/onuron/nilbus"
+	"github.com/joysriramsarkar/alap-framework/platform/onuron/nilhal"
+	"github.com/joysriramsarkar/alap-framework/platform/onuron/nilui"
+	"github.com/joysriramsarkar/alap-framework/runtime/vm"
 )
 
-// Adapter is the full NilOS native platform adapter.
+// Adapter is the full Onuron native platform adapter.
 type Adapter struct {
 	mu            sync.RWMutex
 	KernelVersion string
@@ -61,20 +61,20 @@ const (
 	EventBackButton
 )
 
-// New creates a new NilOS platform adapter with full system service clients.
+// New creates a new Onuron platform adapter with full system service clients.
 func New() *Adapter {
 	return &Adapter{
-		KernelVersion: "NilOS-0.1-vulkan",
+		KernelVersion: "Onuron-0.1-vulkan",
 		DisplayServer: "wayland",
 		GPUBackend:    "vulkan",
 		BusClient:     nilbus.NewClient(""),
-		Renderer:      nilui.NewRenderer("NilXApp", 1080, 1920),
+		Renderer:      nilui.NewRenderer("AlapApp", 1080, 1920),
 		HAL:           nilhal.NewHAL(),
 		capabilities:  make(map[string]bool),
 	}
 }
 
-// Init connects to the NilOS system services (NilBus, NilUI, NilHAL).
+// Init connects to the Onuron system services (NilBus, NilUI, NilHAL).
 func (a *Adapter) Init() error {
 	a.mu.Lock()
 	defer a.mu.Unlock()
@@ -98,7 +98,7 @@ func (a *Adapter) Init() error {
 	return nil
 }
 
-// Shutdown disconnects from all NilOS system services.
+// Shutdown disconnects from all Onuron system services.
 func (a *Adapter) Shutdown() {
 	a.mu.Lock()
 	defer a.mu.Unlock()
@@ -111,7 +111,7 @@ func (a *Adapter) Shutdown() {
 	}
 }
 
-// GetKernelVersion returns the active NilOS kernel version string.
+// GetKernelVersion returns the active Onuron kernel version string.
 func (a *Adapter) GetKernelVersion() string {
 	a.mu.RLock()
 	defer a.mu.RUnlock()
@@ -140,7 +140,11 @@ func (a *Adapter) SendNotification(title, body string) error {
 	}
 
 	payload := []byte(fmt.Sprintf(`{"title":%q,"body":%q}`, title, body))
-	_, err := a.BusClient.Call("org.nilos.NotificationService", "Notify", payload)
+	_, err := a.BusClient.Call("org.onuron.NotificationService", "Notify", payload)
+	if err != nil {
+		// Fallback to legacy service identifier if needed
+		_, err = a.BusClient.Call("org.nilos.NotificationService", "Notify", payload)
+	}
 	return err
 }
 
@@ -191,7 +195,7 @@ func (a *Adapter) RenderCurrentFrame() (string, error) {
 	return renderer.ExportFrameJSON(packet)
 }
 
-// RunApp launches and supervises a native .nilapp package on NilOS.
+// RunApp launches and supervises a native .nilax package on Onuron.
 func (a *Adapter) RunApp(bundlePath string) error {
 	if err := a.Init(); err != nil {
 		return err
@@ -204,7 +208,7 @@ func (a *Adapter) RunApp(bundlePath string) error {
 
 	data, err := os.ReadFile(nabcPath)
 	if err != nil {
-		return fmt.Errorf("failed reading .nilapp bytecode: %w", err)
+		return fmt.Errorf("failed reading .nilax bytecode: %w", err)
 	}
 
 	mod, err := codegen.Deserialize(data)
@@ -220,23 +224,23 @@ func (a *Adapter) RunApp(bundlePath string) error {
 	return runner.Run()
 }
 
-// GenerateProject builds a complete native NilOS .nilapp bundle structure.
+// GenerateProject builds a complete native Onuron .nilax bundle structure.
 func (a *Adapter) GenerateProject(outputDir string, bytecode []byte) error {
-	nilosDir := filepath.Join(outputDir, "nilos")
-	binDir := filepath.Join(nilosDir, "bin")
-	resDir := filepath.Join(nilosDir, "res")
+	onuronDir := filepath.Join(outputDir, "onuron")
+	binDir := filepath.Join(onuronDir, "bin")
+	resDir := filepath.Join(onuronDir, "res")
 
-	dirs := []string{nilosDir, binDir, resDir}
+	dirs := []string{onuronDir, binDir, resDir}
 	for _, d := range dirs {
 		if err := os.MkdirAll(d, 0755); err != nil {
 			return fmt.Errorf("failed creating directory %s: %w", d, err)
 		}
 	}
 
-	manifest := `[NilApp]
-Name = NilXApp
+	manifest := `[NilAx]
+Name = AlapApp
 Version = 0.1.0
-Platform = nilos
+Platform = onuron
 Entry = bin/main.nabc
 Permissions = storage.read, notifications, sensors, network
 DisplayServer = wayland
@@ -244,14 +248,14 @@ GPUBackend = vulkan
 KernelMinVersion = 0.1.0
 `
 	launcherSh := `#!/bin/sh
-# nilos-launcher.sh — Native NilOS Wayland/Vulkan app launcher
+# onuron-launcher.sh — Native Onuron Wayland/Vulkan app launcher
 DIR="$(cd "$(dirname "$0")" && pwd)"
-export NILOS_DISPLAY="wayland-0"
-export NILOS_GPU="vulkan"
+export ONURON_DISPLAY="wayland-0"
+export ONURON_GPU="vulkan"
 exec nilc -in "$DIR/bin/main.nabc" -run "$@"
 `
 	serviceUnit := `[Unit]
-Description=NilX Native Application on NilOS
+Description=Alap Native Application on Onuron
 After=nilbus.service nilui.service
 
 [Service]
@@ -264,13 +268,13 @@ Environment="NILBUS_SOCKET=/run/nilbus/system.sock"
 WantedBy=graphical-session.target
 `
 
-	if err := os.WriteFile(filepath.Join(nilosDir, "app.nilxmanifest"), []byte(manifest), 0644); err != nil {
+	if err := os.WriteFile(filepath.Join(onuronDir, "app.alapmanifest"), []byte(manifest), 0644); err != nil {
 		return fmt.Errorf("failed writing manifest: %w", err)
 	}
-	if err := os.WriteFile(filepath.Join(nilosDir, "nilos-launcher.sh"), []byte(launcherSh), 0755); err != nil {
+	if err := os.WriteFile(filepath.Join(onuronDir, "onuron-launcher.sh"), []byte(launcherSh), 0755); err != nil {
 		return fmt.Errorf("failed writing launcher: %w", err)
 	}
-	if err := os.WriteFile(filepath.Join(nilosDir, "nilx-app.service"), []byte(serviceUnit), 0644); err != nil {
+	if err := os.WriteFile(filepath.Join(onuronDir, "alap-app.service"), []byte(serviceUnit), 0644); err != nil {
 		return fmt.Errorf("failed writing service unit: %w", err)
 	}
 

@@ -1,6 +1,6 @@
 নোট:
 
-আপনার জন্য **NilLang**-এ একটি সম্পূর্ণ **নোট অ্যাপ্লিকেশন** তৈরি করে দিচ্ছি। এটি NilX ফ্রেমওয়ার্কের সবচেয়ে গুরুত্বপূর্ণ ফিচারগুলো ব্যবহার করবে—`@State`, `@Computed`, `async/await`, ফাইল আই/ও, `LazyList`, এবং স্প্লিট-ভিউ লেআউট।
+আপনার জন্য **NilLang**-এ একটি সম্পূর্ণ **নোট অ্যাপ্লিকেশন** তৈরি করে দিচ্ছি। এটি Alap (আলাপ) ফ্রেমওয়ার্কের সবচেয়ে গুরুত্বপূর্ণ ফিচারগুলো ব্যবহার করবে—`@State`, `@Computed`, `async/await`, ফাইল আই/ও, `LazyList`, এবং স্প্লিট-ভিউ লেআউট।
 
 এই অ্যাপটিতে আপনি **নোট তৈরি, এডিট, সেভ এবং ডিলিট** করতে পারবেন। ডেটা লোকাল ফাইল সিস্টেমে `notes.json` ফাইলে সংরক্ষণ করা হবে।
 
@@ -10,7 +10,7 @@
 
 ```nil
 // File: main.nil
-// NilX Note App - Full CRUD Application
+// Alap Note App - Full CRUD Application
 
 import { App, Column, Row, Text, Input, Button, LazyList, Icon } from "nil/ui"
 import { fs } from "nil/fs"
@@ -64,7 +64,7 @@ app NotesApp {
             notes = [
                 Note {
                     id: time.now(),
-                    title: "Welcome to NilOS Notes!",
+                    title: "Welcome to Onuron Notes!",
                     content: "Write your thoughts here.",
                     updatedAt: time.now()
                 }
@@ -289,9 +289,9 @@ cd notes-app
 nil run --target linux
 ```
 
-4. **NilOS এর জন্য বিল্ড করুন:**
+4. **Onuron এর জন্য বিল্ড করুন:**
 ```bash
-nil build nilos
+nil build onuron
 ```
 
 5. **Android এর জন্য বিল্ড করুন:**
@@ -307,16 +307,16 @@ nil build android
 - ✅ **File-based Persistence**: অ্যাপ বন্ধ করলেও নোট থাকে।
 - ✅ **Async Operations**: ফাইল রিড/রাইট UI থ্রেড ব্লক করে না।
 - ✅ **Component Composition**: ছোট ছোট UI ব্লক মিলিয়ে জটিল লেআউট।
-- ✅ **Platform Independence**: একই কোড NilOS, Android, iOS ও Linux-এ কাজ করবে।
+- ✅ **Platform Independence**: একই কোড Onuron, Android, iOS ও Linux-এ কাজ করবে।
 
-এই অ্যাপটিই হলো **NilX-এর "Hello World"**—একটি বাস্তব, কাজ করা অ্যাপ্লিকেশন যা ফ্রেমওয়ার্কের শক্তি দেখায়। 🚀
+এই অ্যাপটিই হলো **Alap-এর "Hello World"**—একটি বাস্তব, কাজ করা অ্যাপ্লিকেশন যা ফ্রেমওয়ার্কের শক্তি দেখায়। 🚀
 
 
 
 ব্রাউজার:
 
 // File: main.nil
-// NilZar Browser - Cross-platform Web Browser for NilOS, Android, iOS & Linux
+// NilZar Browser - Cross-platform Web Browser for Onuron, Android, iOS & Linux
 
 import { App, Column, Row, Text, Input, Button, Icon, Progress, Stack } from "nil/ui"
 import { WebView, WebViewRef, WebViewEvent } from "nil/web"   // Platform WebView Adapter
@@ -341,7 +341,7 @@ struct Bookmark {
 // ----- ব্রাউজার অ্যাপ -----
 app NilZarBrowser {
     // ----- স্টেট (UI) -----
-    @State url: string = "https://nilos.dev"
+    @State url: string = "https://onuron.dev"
     @State title: string = "NilZar Browser"
     @State loading: bool = false
     @State progress: f32 = 0.0
@@ -362,8 +362,8 @@ app NilZarBrowser {
 
     // ----- ডিফল্ট বুকমার্ক -----
     private defaultBookmarks: Bookmark[] = [
-        { id: "1", name: "NilOS", url: "https://github.com/joysriramsarkar/nilos", icon: "🏠" },
-        { id: "2", name: "NilX Framework", url: "https://github.com/joysriramsarkar/nilx", icon: "⚡" },
+        { id: "1", name: "Onuron", url: "https://github.com/joysriramsarkar/onuron", icon: "🏠" },
+        { id: "2", name: "Alap Framework", url: "https://github.com/joysriramsarkar/alap", icon: "⚡" },
         { id: "3", name: "Go Language", url: "https://go.dev", icon: "🐹" },
         { id: "4", name: "GitHub", url: "https://github.com", icon: "🐙" }
     ]
@@ -915,9 +915,9 @@ component BookmarksPanel {
 }
 
 
-সেটিংস অ্যাপ: # ⚙️ NilX Settings App — সম্পূর্ণ কোড ও লজিক
+সেটিংস অ্যাপ: # ⚙️ Alap Settings App — সম্পূর্ণ কোড ও লজিক
 
-আমি আপনার জন্য **NilX Settings অ্যাপ** তৈরি করে দিচ্ছি। এটি একটি পূর্ণাঙ্গ সেটিংস অ্যাপ্লিকেশন, যেখানে:
+আমি আপনার জন্য **Alap Settings অ্যাপ** তৈরি করে দিচ্ছি। এটি একটি পূর্ণাঙ্গ সেটিংস অ্যাপ্লিকেশন, যেখানে:
 - **বিভিন্ন প্রকারের সেটিংস** (Toggle, Slider, Dropdown, Text Input, Color Picker, Radio)
 - **পার্সিস্টেন্স** (JSON ফাইলে সেভ/লোড)
 - **থিমিং** (Light / Dark / System)
@@ -944,7 +944,7 @@ settings-app/
 │       └── Theme.nil         # থিম ইউটিলিটি
 ├── assets/
 │   └── icons/                # আইকন (SVG/PNG)
-└── nilx.yaml
+└── alap.yaml
 ```
 
 ---
@@ -1484,7 +1484,7 @@ component SearchBar {
 
 ```nil
 // main.nil
-// NilX Settings App - সম্পূর্ণ অ্যাপ্লিকেশন
+// Alap Settings App - সম্পূর্ণ অ্যাপ্লিকেশন
 
 import { App, Column, Row, Text, Scroll, Button, Icon, Spacer } from "nil/ui"
 import { SettingsStore } from "./stores/SettingsStore"
@@ -2031,11 +2031,11 @@ app SettingsApp {
 
 ---
 
-## ৭. nilx.yaml (প্রজেক্ট কনফিগ)
+## ৭. alap.yaml (প্রজেক্ট কনফিগ)
 
 ```yaml
-# nilx.yaml
-name: com.nilos.settings
+# alap.yaml
+name: com.onuron.settings
 version: 1.0.0
 entry: src/main.nil
 
@@ -2044,7 +2044,7 @@ permissions:
   - storage.write
 
 targets:
-  nilos:
+  onuron:
     arch: [arm64, x86_64]
   android:
     arch: [arm64, x86_64]
@@ -2093,8 +2093,8 @@ nil run --target linux
 # অ্যান্ড্রয়েড বিল্ড
 nil build android
 
-# NilOS বিল্ড
-nil build nilos
+# Onuron বিল্ড
+nil build onuron
 ```
 
 ---
@@ -2113,4 +2113,4 @@ nil build nilos
 
 ---
 
-এই সেটিংস অ্যাপ **NilX-এর স্টেট ম্যানেজমেন্ট, পার্সিস্টেন্স, থিমিং ও UI কম্পোজিশনের** পূর্ণ শক্তি প্রদর্শন করে। এটি একটি বাস্তব অ্যাপ্লিকেশনের জন্য প্রস্তুত! 🚀
+এই সেটিংস অ্যাপ **Alap-এর স্টেট ম্যানেজমেন্ট, পার্সিস্টেন্স, থিমিং ও UI কম্পোজিশনের** পূর্ণ শক্তি প্রদর্শন করে। এটি একটি বাস্তব অ্যাপ্লিকেশনের জন্য প্রস্তুত! 🚀

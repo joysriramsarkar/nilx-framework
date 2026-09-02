@@ -1,11 +1,11 @@
-// Package state implements reactive state reconciliation and UI tree diffing for NilX.
+// Package state implements reactive state reconciliation and UI tree diffing for Alap.
 package state
 
 import (
 	"reflect"
 	"sync"
 
-	"github.com/joysriramsarkar/nilx-framework/ui/engine"
+	"github.com/joysriramsarkar/alap-framework/ui/engine"
 )
 
 // MutationKind describes the type of DOM/UI modification.

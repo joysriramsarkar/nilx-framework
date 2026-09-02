@@ -8,7 +8,7 @@ import (
 	"math"
 	"strconv"
 
-	"github.com/joysriramsarkar/nilx-framework/compiler/ast"
+	"github.com/joysriramsarkar/alap-framework/compiler/ast"
 )
 
 // ─── Opcode definitions ──────────────────────────────────────────────────────

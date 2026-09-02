@@ -93,7 +93,7 @@ function main(): void {
 
     // Create todos
     let todos: Todo[] = [
-    createTodo(1, "Set up NilX Framework", 5),
+    createTodo(1, "Set up Alap Framework", 5),
     createTodo(2, "Write NilLang compiler", 5),
     createTodo(3, "Implement VM runtime", 4),
     createTodo(4, "Build UI engine", 4),
@@ -102,7 +102,7 @@ function main(): void {
     createTodo(7, "Add unit tests", 4),
     createTodo(8, "Set up CI/CD pipeline", 2),
     createTodo(9, "Publish to GitHub", 2),
-    createTodo(10, "Deploy NilOS integration", 5)
+    createTodo(10, "Deploy Onuron integration", 5)
     ]
 
     // Update some statuses

@@ -1,4 +1,4 @@
-// Package state provides fine-grained reactive state management (Signals, Store, Computed) for NilX UI components.
+// Package state provides fine-grained reactive state management (Signals, Store, Computed) for Alap UI components.
 package state
 
 import (

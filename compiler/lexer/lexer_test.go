@@ -6,7 +6,7 @@ import (
 
 func TestBasicTokens(t *testing.T) {
 	src := `let x: i32 = 42
-const name: string = "NilOS"
+const name: string = "Onuron"
 function add(a: i32, b: i32): i32 {
     return a + b
 }

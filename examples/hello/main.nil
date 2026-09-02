@@ -2,19 +2,19 @@
 // Run: nilc -in examples/hello/main.nil -run
 
 function greet(name: string): string {
-    return "Hello, " + name + "! Welcome to NilX Framework."
+    return "Hello, " + name + "! Welcome to Alap Framework."
 }
 
 function main(): void {
     print("=== NilLang Hello World ===")
 
-    let msg: string = greet("NilOS")
+    let msg: string = greet("Onuron")
     print(msg)
 
     let msg2: string = greet("World")
     print(msg2)
 
-    print("NilX Framework is running!")
+    print("Alap Framework is running!")
 }
 
 main()

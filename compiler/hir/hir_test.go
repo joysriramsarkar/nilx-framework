@@ -21,10 +21,10 @@ func TestConstantFoldingInt(t *testing.T) {
 
 func TestConstantFoldingString(t *testing.T) {
 	left := Value{Type: "string", StrVal: "Hello ", IsConst: true}
-	right := Value{Type: "string", StrVal: "NilOS", IsConst: true}
+	right := Value{Type: "string", StrVal: "Onuron", IsConst: true}
 
 	res, ok := FoldBinary(left, right, "+")
-	if !ok || res.StrVal != "Hello NilOS" {
+	if !ok || res.StrVal != "Hello Onuron" {
 		t.Errorf("expected string concat 'Hello NilOS', got %q", res.StrVal)
 	}
 }

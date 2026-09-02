@@ -1,16 +1,16 @@
-আপনার তৈরি নতুন অপারেটিং সিস্টেম **Nilos** (GitHub: joysriramsarkar/nilos), Android, iOS এবং Linux-এর জন্য একটি শক্তিশালী ক্রস-প্ল্যাটফর্ম ফ্রেমওয়ার্ক এবং একটি হাইব্রিড প্রোগ্রামিং ল্যাঙ্গুয়েজের সম্পূর্ণ ব্লুপ্রিন্ট নিচে দেওয়া হলো।
+আপনার তৈরি নতুন অপারেটিং সিস্টেম **Onuron (অনুরণ ওএস)** (GitHub: joysriramsarkar/onuron), Android, iOS এবং Linux-এর জন্য একটি শক্তিশালী ক্রস-প্ল্যাটফর্ম ফ্রেমওয়ার্ক এবং একটি হাইব্রিড প্রোগ্রামিং ল্যাঙ্গুয়েজের সম্পূর্ণ ব্লুপ্রিন্ট নিচে দেওয়া হলো।
 
-এই ফ্রেমওয়ার্কের নাম দেওয়া যেতে পারে **NilX** (Nilos Cross-Platform Framework) এবং নতুন ভাষার নাম হতে পারে **NilLang** (বা NilTS)।
+এই ফ্রেমওয়ার্কের নাম **Alap (আলাপ)** (Alap Cross-Platform Framework) এবং নতুন ভাষার নাম হতে পারে **NilLang** (বা NilTS)।
 
 ---
 
-### ১. ফ্রেমওয়ার্কের ব্লুপ্রিন্ট: NilX Framework
+### ১. ফ্রেমওয়ার্কের ব্লুপ্রিন্ট: Alap (আলাপ) Framework
 
-NilX ফ্রেমওয়ার্কটি মূলত ৪টি প্রধান স্তরে (Layers) বিভক্ত থাকবে, যা একই কোডবেস থেকে সব প্ল্যাটফর্মে নেটিভ পারফরম্যান্স নিশ্চিত করবে।
+Alap ফ্রেমওয়ার্কটি মূলত ৪টি প্রধান স্তরে (Layers) বিভক্ত থাকবে, যা একই কোডবেস থেকে সব প্ল্যাটফর্মে নেটিভ পারফরম্যান্স নিশ্চিত করবে।
 
-*   **Layer 1: NilX Engine (Core C++/Rust):** এটি ফ্রেমওয়ার্কের হৃদপিণ্ড। গ্রাফিক্স রেন্ডারিং-এর জন্য এটি **Skia** (Flutter-এর মতো) বা কাস্টম **Vulkan/Metal** ইঞ্জিন ব্যবহার করবে। এটি GPU-এর মাধ্যমে পিক্সেল রেন্ডার করবে এবং মেমোরি ম্যানেজমেন্টের দায়িত্ব নেবে।
+*   **Layer 1: Alap Engine (Core C++/Rust):** এটি ফ্রেমওয়ার্কের হৃদপিণ্ড। গ্রাফিক্স রেন্ডারিং-এর জন্য এটি **Skia** (Flutter-এর মতো) বা কাস্টম **Vulkan/Metal** ইঞ্জিন ব্যবহার করবে। এটি GPU-এর মাধ্যমে পিক্সেল রেন্ডার করবে এবং মেমোরি ম্যানেজমেন্টের দায়িত্ব নেবে।
 *   **Layer 2: Platform Abstraction Layer (PAL):** প্রতিটি OS-এর জন্য আলাদা ব্রিজ বা অ্যাডাপ্টার।
-    *   **Nilos:** আপনার Nilos কার্নেলের সিস্টেম কল (Syscalls) এবং ডিসপ্লে/উইন্ডো ম্যানেজমেন্টের সাথে সরাসরি যোগাযোগের জন্য একটি Native HAL (Hardware Abstraction Layer)।
+    *   **Onuron:** আপনার Onuron কার্নেলের সিস্টেম কল (Syscalls) এবং ডিসপ্লে/উইন্ডো ম্যানেজমেন্টের সাথে সরাসরি যোগাযোগের জন্য একটি Native HAL (Hardware Abstraction Layer)।
     *   **Android:** JNI/NDK ব্যবহার করে Android-এর Activity Lifecycle-এর সাথে ম্যাপিং।
     *   **iOS:** Objective-C/Swift ব্রিজের মাধ্যমে UIKit/SwiftUI-এর সাথে ইন্টিগ্রেশন।
     *   **Linux:** Wayland বা X11 প্রোটোকল ব্যবহার করে ডেস্কটপ উইন্ডো ম্যানেজমেন্ট।
@@ -64,7 +64,7 @@ struct NilApp {
                 .margin({ top: 20 })
                 .fontSize(24)
 
-            Button("Fetch from NilOS Server")
+            Button("Fetch from Onuron Server")
                 .margin({ top: 30 })
                 .backgroundColor('#007aff')
                 .onClick(() => {
@@ -80,13 +80,13 @@ struct NilApp {
 
     // Go-এর মতো ফাংশন ডিক্লারেশন (func keyword)
     func fetchUserData() {
-        log.info("Starting background task on NilOS...")
+        log.info("Starting background task on Onuron...")
         
         // ২ সেকেন্ড স্লিপ (নেটিভ কল)
         time.sleep(2 * time.Second) 
         
         // চ্যানেলে ডেটা পাঠানো (Go-এর মতো <- অপারেটর)
-        this.dataChannel <- { id: 1, name: "NilOS User", os: "Nilos" }
+        this.dataChannel <- { id: 1, name: "Onuron User", os: "Onuron" }
     }
 
     // কম্পোনেন্ট লাইফসাইকেল মেথড
@@ -116,32 +116,32 @@ struct NilApp {
 1.  **Frontend (Parser & AST):** NilLang কোড প্রথমে একটি কাস্টম কম্পাইলারের মাধ্যমে AST (Abstract Syntax Tree)-তে রূপান্তরিত হয়। এটি TypeScript-এর মতো টাইপ-চেকিং করে।
 2.  **Middle-end (IR Generation):** AST-কে **LLVM IR** (Intermediate Representation)-এ রূপান্তর করা হয়।
 3.  **Backend (AOT Compilation):**
-    *   **Nilos-এর জন্য:** LLVM IR থেকে সরাসরি Nilos Kernel-এর সাপোর্টেড আর্কিটেকচারের (যেমন- ARM64/RISC-V) মেশিন কোড তৈরি হয়। Nilos-এর নিজস্ব সিস্টেম কলগুলো এখানে লিঙ্ক করা হয়।
+    *   **Onuron-এর জন্য:** LLVM IR থেকে সরাসরি Onuron Kernel-এর সাপোর্টেড আর্কিটেকচারের (যেমন- ARM64/RISC-V) মেশিন কোড তৈরি হয়। Onuron-এর নিজস্ব সিস্টেম কলগুলো এখানে লিঙ্ক করা হয়।
     *   **Android-এর জন্য:** কোডকে AOT কম্পাইল করে `.so` (Shared Object) লাইব্রেরিতে প্যাকেজ করা হয় এবং Android-এর `Activity`-এর ভেতর রান করানো হয়।
     *   **iOS-এর জন্য:** Apple-এর নিয়ম অনুযায়ী কোডকে AOT কম্পাইল করে `.framework` বা `.a` ফাইলে রূপান্তর করা হয় (iOS-এ JIT বা VM অ্যালাউড নয়, তাই AOT বাধ্যতামূলক)।
     *   **Linux-এর জন্য:** সাধারণ ELF এক্সিকিউটেবল বা শেয়ার্ড লাইব্রেরি তৈরি হয়, যা Wayland/X11-এর সাথে যুক্ত হয়।
 
 ---
 
-### ৪. Nilos OS-এর জন্য বিশেষ ইন্টিগ্রেশন (The "Nilos" Advantage)
+### ৪. Onuron OS-এর জন্য বিশেষ ইন্টিগ্রেশন (The "Onuron" Advantage)
 
-যেহেতু Nilos আপনার নিজস্ব তৈরি OS, তাই ফ্রেমওয়ার্কের ভেতরে একটি **`nilang/native`** মডিউল থাকবে। অন্যান্য ফ্রেমওয়ার্কে (যেমন React Native বা Flutter) হার্ডওয়্যার অ্যাক্সেস করতে হলে থার্ড-পার্টি প্লাগিনের ওপর নির্ভর করতে হয়। কিন্তু NilLang-এ আপনি সরাসরি লিখতে পারবেন:
+যেহেতু Onuron আপনার নিজস্ব তৈরি OS, তাই ফ্রেমওয়ার্কের ভেতরে একটি **`nilang/native`** মডিউল থাকবে। অন্যান্য ফ্রেমওয়ার্কে (যেমন React Native বা Flutter) হার্ডওয়্যার অ্যাক্সেস করতে হলে থার্ড-পার্টি প্লাগিনের ওপর নির্ভর করতে হয়। কিন্তু NilLang-এ আপনি সরাসরি লিখতে পারবেন:
 
 ```typescript
-import { NilOS } from 'nilang/native'
+import { Onuron } from 'nilang/native'
 
 func customHardwareAccess() {
-    // সরাসরি Nilos কার্নেলের মেমোরি বা রেজিস্টার অ্যাক্সেস করা
-    let kernelVersion = NilOS.getKernelVersion()
-    NilOS.triggerCustomHardwareSensor(1)
+    // সরাসরি Onuron কার্নেলের মেমোরি বা রেজিস্টার অ্যাক্সেস করা
+    let kernelVersion = Onuron.getKernelVersion()
+    Onuron.triggerCustomHardwareSensor(1)
 }
 ```
 এটি আপনার OS-কে অন্যান্য প্ল্যাটফর্মের চেয়ে অনেক বেশি অপ্টিমাইজড এবং দ্রুত করবে, কারণ এখানে কোনো ভার্চুয়াল মেশিন বা অতিরিক্ত ব্রিজের ওভারহেড থাকবে না।
 
 ### পরবর্তী পদক্ষেপ:
 ১. **কম্পাইলার ডেভেলপমেন্ট:** TypeScript/ArkTS-এর ওপেন-সোর্স কম্পাইলার এবং Go-এর কম্পাইলার লজিক মিলিয়ে LLVM-বেসড একটি কম্পাইলার তৈরি করা।
-২. **রেন্ডারিং ইঞ্জিন:** Nilos-এর জন্য একটি লাইটওয়েট ডিসপ্লে ড্রাইভার এবং Skia/Vulkan ইন্টিগ্রেশন তৈরি করা।
-৩. **CLI টুল:** `nilx init`, `nilx build nilos`, `nilx build android` কমান্ডের জন্য একটি কমান্ড-লাইন টুলচেইন তৈরি করা।
+২. **রেন্ডারিং ইঞ্জিন:** Onuron-এর জন্য একটি লাইটওয়েট ডিসপ্লে ড্রাইভার এবং Skia/Vulkan ইন্টিগ্রেশন তৈরি করা।
+৩. **CLI টুল:** `alap init`, `alap build onuron`, `alap build android` কমান্ডের জন্য একটি কমান্ড-লাইন টুলচেইন তৈরি করা।
 
 
 আমি নিচে একটি **স্টার্টার প্রোটোটাইপ** তৈরি করছি যেখানে:
@@ -152,13 +152,13 @@ func customHardwareAccess() {
 আসুন শুরু করি:
 
 
-আমি আপনার জন্য **NilX Framework**-এর সম্পূর্ণ ব্লুপ্রিন্ট এবং প্রোটোটাইপ কোড তৈরি করে দিয়েছি। এটি একটি production-ready ফ্রেমওয়ার্ক তৈরির জন্য সম্পূর্ণ foundation।
+আমি আপনার জন্য **Alap Framework**-এর সম্পূর্ণ ব্লুপ্রিন্ট এবং প্রোটোটাইপ কোড তৈরি করে দিয়েছি। এটি একটি production-ready ফ্রেমওয়ার্ক তৈরির জন্য সম্পূর্ণ foundation।
 
 ## ✅ যা তৈরি করে দিয়েছি:
 
 ### ১. সম্পূর্ণ প্রজেক্ট স্ট্রাকচার
 - **Compiler**: Lexer, Parser, AST, Type Checker, Code Generator
-- **Runtime**: UI Engine, Platform Adapters (NilOS, Android, iOS, Linux), Rendering Engine
+- **Runtime**: UI Engine, Platform Adapters (Onuron, Android, iOS, Linux), Rendering Engine
 - **CLI Tools**: init, build, run, deploy কমান্ড
 - **Documentation**: Getting started guide, architecture docs
 
@@ -174,7 +174,7 @@ func customHardwareAccess() {
 ### ৩. Platform Adapters
 ```
 🔌 Platform Support:
-- NilOS Adapter - আপনার OS-এর kernel-এর সাথে সরাসরি integration
+- Onuron Adapter - আপনার OS-এর kernel-এর সাথে সরাসরি integration
 - Android Adapter - JNI/NDK bridge
 - iOS Adapter - Objective-C bridge
 - Linux Adapter - X11/Wayland support
@@ -224,7 +224,7 @@ struct MyApp {
    
 3. **Platform Adapters**
    - প্রতিটি platform-এর জন্য native bridge তৈরি করুন
-   - NilOS kernel-এর সাথে deepest integration
+   - Onuron kernel-এর সাথে deepest integration
 
 ### Phase 3: Tooling & Ecosystem (2-3 মাস)
 1. **CLI Tools সম্পূর্ণ করুন**
@@ -242,8 +242,8 @@ struct MyApp {
 
 ```bash
 # 1. Repository clone করুন
-git clone https://github.com/joysriramsarkar/nilx-framework
-cd nilx-framework
+git clone https://github.com/joysriramsarkar/alap-framework
+cd alap-framework
 
 # 2. Dependencies install করুন
 npm install
@@ -253,30 +253,30 @@ npm run build
 
 # 4. Test app তৈরি করুন
 mkdir my-app && cd my-app
-nilx init
+alap init
 
 # 5. Code লিখুন (main.nilang)
 # 6. Build করুন
-nilx build nilos
+alap build onuron
 
 # 7. Run করুন
-nilx run
+alap run
 ```
 
 ---
 
-## 🎯 NilOS-এর জন্য বিশেষ সুবিধা:
+## 🎯 Onuron-এর জন্য বিশেষ সুবিধা:
 
-আপনার NilOS-এর জন্য আমি `NilOSAdapter` তৈরি করে দিয়েছি যা সরাসরি kernel-এর সাথে কথা বলবে:
+আপনার Onuron-এর জন্য আমি `OnuronAdapter` তৈরি করে দিয়েছি যা সরাসরি kernel-এর সাথে কথা বলবে:
 
 ```typescript
-// সরাসরি NilOS kernel API access
-import { NilOS } from 'nilx/native'
+// সরাসরি Onuron kernel API access
+import { Onuron } from 'alap/native'
 
 func customHardwareAccess() {
     // কোনো bridge/overhead নেই - direct kernel call
-    NilOS.triggerHardwareSensor(1)
-    NilOS.accessMemoryRegion(0x1000)
+    Onuron.triggerHardwareSensor(1)
+    Onuron.accessMemoryRegion(0x1000)
 }
 ```
 
@@ -288,7 +288,7 @@ func customHardwareAccess() {
 
 | Phase | Duration | Milestone |
 |-------|----------|-----------|
-| Alpha | 6 months | Basic apps run on NilOS |
+| Alpha | 6 months | Basic apps run on Onuron |
 | Beta | 12 months | Android/iOS support |
 | v1.0 | 18 months | Production ready |
 | v2.0 | 24 months | Full ecosystem |
@@ -307,7 +307,7 @@ func customHardwareAccess() {
 কোনো specific component নিয়ে আরও details চাইলে জানান! 🚀
 
 
-বর্তমান `NilOS` repository-এর architecture দেখে integration design করা হয়েছে। GitHub-এ বর্তমানে `runtime/nilrt`, `runtime/nilui`, `runtime/nilui-gpu`, `nilbus-client`, Wayland compositor, signed package manager এবং Android compatibility layer আছে—তাই NilX-কে এগুলোর উপর application framework হিসেবে বসানো হয়েছে, এগুলো replace করার জন্য নয়। ([GitHub][1])
+বর্তমান `Onuron` repository-এর architecture দেখে integration design করা হয়েছে। GitHub-এ বর্তমানে `runtime/nilrt`, `runtime/nilui`, `runtime/nilui-gpu`, `nilbus-client`, Wayland compositor, signed package manager এবং Android compatibility layer আছে—তাই Alap-কে এগুলোর উপর application framework হিসেবে বসানো হয়েছে, এগুলো replace করার জন্য নয়। ([GitHub][1])
 
 ### যা বাস্তবে তৈরি হয়েছে
 
@@ -343,17 +343,17 @@ Prototype-এ এখন কাজ করছে:
 * compiler CLI: `nilc`
 * project CLI: `nil`
 * unit test
-* NilOS / Android / iOS / Linux adapter scaffold
+* Onuron / Android / iOS / Linux adapter scaffold
 * প্রথম stable C ABI header draft
 * bilingual architecture/specification documentation
-* NilOS integration guide
+* Onuron integration guide
 * implementation roadmap
 * GitHub Actions CI
 
 আমি `go test ./...` চালিয়ে সব package compile/test করেছি এবং sample program চালিয়ে output পেয়েছি:
 
 ```text
-Hello NilOS
+Hello Onuron
 5
 ```
 
@@ -361,7 +361,7 @@ Hello NilOS
 
 ### মূল source code
 
-[**NilX + NilLang Prototype — ZIP**](sandbox:/mnt/data/NilX_NilLang_Prototype.zip)
+[**Alap + NilLang Prototype — ZIP**](sandbox:/mnt/data/Alap_NilLang_Prototype.zip)
 
 SHA-256:
 
@@ -373,22 +373,22 @@ d2a4f810fdcdede3ba5e52bbadffa82e7dacd9058630778e1b0d9a46738608d5
 
 Prototype-এর মধ্যে:
 
-[**Architecture documentation**](sandbox:/mnt/data/nilx-prototype/docs/ARCHITECTURE.md)
+[**Architecture documentation**](sandbox:/mnt/data/alap-prototype/docs/ARCHITECTURE.md)
 
-[**NilLang Language Specification — বাংলা + English**](sandbox:/mnt/data/nilx-prototype/docs/LANGUAGE_SPEC_BN_EN.md)
+[**NilLang Language Specification — বাংলা + English**](sandbox:/mnt/data/alap-prototype/docs/LANGUAGE_SPEC_BN_EN.md)
 
-[**Implementation Plan**](sandbox:/mnt/data/nilx-prototype/docs/IMPLEMENTATION_PLAN.md)
+[**Implementation Plan**](sandbox:/mnt/data/alap-prototype/docs/IMPLEMENTATION_PLAN.md)
 
-[**NilOS Integration Guide**](sandbox:/mnt/data/nilx-prototype/docs/NILOS_INTEGRATION.md)
+[**Onuron Integration Guide**](sandbox:/mnt/data/alap-prototype/docs/NILOS_INTEGRATION.md)
 
-[**Prototype Status**](sandbox:/mnt/data/nilx-prototype/docs/STATUS.md)
+[**Prototype Status**](sandbox:/mnt/data/alap-prototype/docs/STATUS.md)
 
 ### চালিয়ে দেখার পদ্ধতি
 
 ZIP extract করে:
 
 ```bash
-cd nilx-prototype
+cd alap-prototype
 
 go test ./...
 
@@ -411,7 +411,7 @@ function add(a: i32, b: i32): i32 {
 }
 
 function main(): void {
-  let name: string = "NilOS";
+  let name: string = "Onuron";
   let x: i32 = 2;
   let y: i32 = 3;
 
@@ -420,14 +420,14 @@ function main(): void {
 }
 ```
 
-### NilOS-এ বসানোর জন্য
+### Onuron-এ বসানোর জন্য
 
 আমি আলাদা integration overlay-ও রেখেছি:
 
 ```text
 integration-overlay/
 └── framework/
-    └── nilx/
+    └── alap/
         ├── compiler/
         ├── runtime/
         ├── ui/
@@ -436,11 +436,11 @@ integration-overlay/
         └── cmd/
 ```
 
-তার উদ্দেশ্য হলো NilOS-এর বর্তমান Rust workspace না ভেঙে framework-টি আলাদা layer হিসেবে বসানো। NilOS repository নিজেই বর্তমানে Rust/Cargo workspace-ভিত্তিক এবং GPLv3-licensed। ([GitHub][1])
+তার উদ্দেশ্য হলো Onuron-এর বর্তমান Rust workspace না ভেঙে framework-টি আলাদা layer হিসেবে বসানো। Onuron repository নিজেই বর্তমানে Rust/Cargo workspace-ভিত্তিক এবং GPLv3-licensed। ([GitHub][1])
 
 ### তবে একটি কথা পরিষ্কার
 
-এটি এখনো **NilOS/Android/iOS/Linux-এর production cross-platform UI framework নয়**। বর্তমান prototype-এর সবচেয়ে গুরুত্বপূর্ণ অর্জন হলো ভাষা → compiler → bytecode → runtime seam সত্যি কাজ করছে।
+এটি এখনো **Onuron/Android/iOS/Linux-এর production cross-platform UI framework নয়**। বর্তমান prototype-এর সবচেয়ে গুরুত্বপূর্ণ অর্জন হলো ভাষা → compiler → bytecode → runtime seam সত্যি কাজ করছে।
 
 পরের engineering milestone হবে:
 
@@ -455,24 +455,24 @@ NilUI
    ↓
 Vulkan
    ↓
-NilOS
+Onuron
 ```
 
 তারপর একই UI/runtime contract:
 
 ```text
-                 NilX
+                 Alap
                   │
        ┌──────────┼──────────┐
        │          │          │
-     NilOS     Android      iOS
+     Onuron     Android      iOS
        │          │          │
     Vulkan    Vulkan/GLES   Metal
        │
      Linux
 ```
 
-অর্থাৎ এখন থেকে এটাকে **সত্যিকারের NilOS-native app ecosystem** বানানোর কাজ শুরু করা যাবে। বর্তমান NilOS-এ `nilui` ও `nilui-gpu` ইতিমধ্যেই declarative UI এবং Vulkan rendering-এর ভিত্তি দেয়, ফলে পরবর্তী ধাপটি আগের চেয়ে অনেক বেশি নির্দিষ্ট। ([GitHub][2])
+অর্থাৎ এখন থেকে এটাকে **সত্যিকারের Onuron-native app ecosystem** বানানোর কাজ শুরু করা যাবে। বর্তমান Onuron-এ `nilui` ও `nilui-gpu` ইতিমধ্যেই declarative UI এবং Vulkan rendering-এর ভিত্তি দেয়, ফলে পরবর্তী ধাপটি আগের চেয়ে অনেক বেশি নির্দিষ্ট। ([GitHub][2])
 
 অ্যান্ড্রয়েড এবং আইওএস (iOS) সাধারণ লিনাক্স ডেস্কটপের মতো প্রথাগত ডিসপ্লে সার্ভার (যেমন X11 বা Wayland) ব্যবহার করে না। মোবাইল হার্ডওয়্যারের সীমাবদ্ধতা ও ব্যাটারি সাশ্রয়ের কথা মাথায় রেখে এই দুটি ওএস-এর নিজস্ব কাস্টমাইজড ডিসপ্লে এবং কম্পোজিশন সিস্টেম রয়েছে:
 ## অ্যান্ড্রয়েড (Android)
@@ -569,7 +569,7 @@ NilOS
 [6] [https://segmentfault.com](https://segmentfault.com/a/1190000040644773/en)
 
 
-# NilX Framework + NilLang — সম্পূর্ণ আর্কিটেকচার, ডকুমেন্টেশন ও ১০০টি উদাহরণ কোড
+# Alap Framework + NilLang — সম্পূর্ণ আর্কিটেকচার, ডকুমেন্টেশন ও ১০০টি উদাহরণ কোড
 
 ---
 
@@ -591,7 +591,7 @@ NilOS
 14. [Android পোর্ট](#১৪-android-পোর্ট)
 15. [iOS পোর্ট](#১৫-ios-পোর্ট)
 16. [Linux পোর্ট](#১৬-linux-পোর্ট)
-17. [NilOS পোর্ট](#১৭-nilos-পোর্ট)
+17. [Onuron পোর্ট](#১৭-onuron-পোর্ট)
 18. [নিরাপত্তা ও ক্যাপাবিলিটি মডেল](#১৮-নিরাপত্তা-ও-ক্যাপাবিলিটি-মডেল)
 19. [প্যাকেজিং ও ডিস্ট্রিবিউশন](#১৯-প্যাকেজিং-ও-ডিস্ট্রিবিউশন)
 20. [বিল্ড সিস্টেম ও CLI](#২০-বিল্ড-সিস্টেম-ও-cli)
@@ -610,13 +610,13 @@ NilOS
 
 ## ১. ভূমিকা ও দৃষ্টিভঙ্গি
 
-### ১.১ NilX কী?
+### ১.১ Alap কী?
 
-**NilX** হলো একটি ক্রস-প্ল্যাটফর্ম অ্যাপ্লিকেশন ফ্রেমওয়ার্ক যা একই সোর্স কোড থেকে NilOS, Android, iOS এবং Linux-এর জন্য নেটিভ অ্যাপ্লিকেশন তৈরি করে।
+**Alap** হলো একটি ক্রস-প্ল্যাটফর্ম অ্যাপ্লিকেশন ফ্রেমওয়ার্ক যা একই সোর্স কোড থেকে Onuron, Android, iOS এবং Linux-এর জন্য নেটিভ অ্যাপ্লিকেশন তৈরি করে।
 
 ### ১.২ NilLang কী?
 
-**NilLang** হলো NilX-এর প্রাথমিক প্রোগ্রামিং ভাষা। এটি:
+**NilLang** হলো Alap-এর প্রাথমিক প্রোগ্রামিং ভাষা। এটি:
 - **ArkTS**-স্টাইলের Declarative UI
 - **TypeScript**-এর স্ট্যাটিক টাইপিং ও সিনট্যাক্স
 - **Go**-অনুপ্রাণিত কনকারেন্সি (Goroutines, Channels)
@@ -658,7 +658,7 @@ NilOS
 │    │                         │                         │           │
 │    ▼                         ▼                         ▼           │
 │ ┌─────────────┐     ┌─────────────┐     ┌─────────────┐           │
-│ │   NilOS     │     │   Android   │     │     iOS     │           │
+│ │   Onuron     │     │   Android   │     │     iOS     │           │
 │ │  Adapter    │     │  Adapter    │     │  Adapter    │           │
 │ │             │     │             │     │             │           │
 │ │ Wayland     │     │  Surface    │     │  Metal      │           │
@@ -686,7 +686,7 @@ NilOS
 ```nil
 // hello.nil
 function main(): void {
-    print("Hello, NilOS!")
+    print("Hello, Onuron!")
 }
 ```
 
@@ -699,7 +699,7 @@ const APP_NAME: string = "MyApp"
 
 // mutable (let)
 let count: i32 = 0
-let name: string = "NilOS"
+let name: string = "Onuron"
 let isActive: bool = true
 let price: f64 = 99.99
 let byteData: bytes = [0x01, 0x02, 0x03]
@@ -783,7 +783,7 @@ let user = User {
     id: "u001",
     name: "Joy Sarkar",
     age: 30,
-    email: "joy@nilos.dev"
+    email: "joy@onuron.dev"
 }
 
 // Access
@@ -1363,11 +1363,11 @@ import { App, Column, Row, Text, Button } from "nil/ui"
 app HelloWorld {
     build() {
         Column {
-            Text("Hello, NilOS!")
+            Text("Hello, Onuron!")
                 .font(size: 24, weight: .bold)
                 .foreground(.primary)
             
-            Text("Welcome to NilX Framework")
+            Text("Welcome to Alap Framework")
                 .font(size: 16)
                 .foreground(.secondary)
         }
@@ -1888,7 +1888,7 @@ let content = await fs.readFile("/path/to/file.txt")
 let text = content.toString()
 
 // Write file
-await fs.writeFile("/path/to/file.txt", "Hello, NilOS!")
+await fs.writeFile("/path/to/file.txt", "Hello, Onuron!")
 
 // File exists
 let exists = await fs.exists("/path/to/file.txt")
@@ -1922,7 +1922,7 @@ let response = await http.get("https://api.example.com/users")
 let data = await response.json()
 
 // POST request
-let payload = json.stringify({ name: "Joy", email: "joy@nilos.dev" })
+let payload = json.stringify({ name: "Joy", email: "joy@onuron.dev" })
 let postResponse = await http.post("https://api.example.com/users", {
     headers: {
         "Content-Type": "application/json"
@@ -1954,7 +1954,7 @@ ws.close()
 import { json } from "nil/json"
 
 // Serialize
-let obj = { name: "Joy", age: 30, tags: ["developer", "nilos"] }
+let obj = { name: "Joy", age: 30, tags: ["developer", "onuron"] }
 let jsonString = json.stringify(obj)
 
 // Deserialize
@@ -2028,10 +2028,10 @@ Code Generator → NABC Bytecode / Native
 package main
 
 import (
-    "github.com/joysriramsarkar/nilx/compiler/lexer"
-    "github.com/joysriramsarkar/nilx/compiler/parser"
-    "github.com/joysriramsarkar/nilx/compiler/typecheck"
-    "github.com/joysriramsarkar/nilx/compiler/codegen"
+    "github.com/joysriramsarkar/alap/compiler/lexer"
+    "github.com/joysriramsarkar/alap/compiler/parser"
+    "github.com/joysriramsarkar/alap/compiler/typecheck"
+    "github.com/joysriramsarkar/alap/compiler/codegen"
 )
 
 func main() {
@@ -2047,7 +2047,7 @@ func main() {
     typed := typecheck.Check(ast)
     
     // Code generation
-    output := codegen.Generate(typed, target: "nilos")
+    output := codegen.Generate(typed, target: "onuron")
     
     writeOutput("output.nabc", output)
 }
@@ -2223,14 +2223,14 @@ class MainActivity : AppCompatActivity() {
 ```cpp
 // android/jni_bridge.cpp
 extern "C" JNIEXPORT void JNICALL
-Java_com_nilos_app_NilRuntime_nativeLoadApp(JNIEnv* env, jobject thiz, jstring path) {
+Java_com_onuron_app_NilRuntime_nativeLoadApp(JNIEnv* env, jobject thiz, jstring path) {
     const char* pathStr = env->GetStringUTFChars(path, nullptr);
     nilRuntime.loadApp(pathStr);
     env->ReleaseStringUTFChars(path, pathStr);
 }
 
 extern "C" JNIEXPORT void JNICALL
-Java_com_nilos_app_NilRuntime_nativeStart(JNIEnv* env, jobject thiz) {
+Java_com_onuron_app_NilRuntime_nativeStart(JNIEnv* env, jobject thiz) {
     nilRuntime.start();
 }
 ```
@@ -2328,21 +2328,21 @@ private:
 
 ---
 
-## ১৭. NilOS পোর্ট
+## ১৭. Onuron পোর্ট
 
-### ১৭.১ NilOS আর্কিটেকচার
+### ১৭.১ Onuron আর্কিটেকচার
 
 ```rust
-// nilos/framework/src/lib.rs
-pub struct NilOSAdapter {
+// onuron/framework/src/lib.rs
+pub struct OnuronAdapter {
     runtime: NilRuntime,
     window: Window,
     renderer: VulkanRenderer,
 }
 
-impl PlatformAdapter for NilOSAdapter {
+impl PlatformAdapter for OnuronAdapter {
     fn init(&mut self) -> Result<(), Error> {
-        self.window = Window::new("NilOS App", 1024, 768)?;
+        self.window = Window::new("Onuron App", 1024, 768)?;
         self.renderer = VulkanRenderer::new(&self.window)?;
         self.runtime = NilRuntime::new()?;
         Ok(())
@@ -2371,8 +2371,8 @@ impl PlatformAdapter for NilOSAdapter {
 ### ১৮.১ ম্যানিফেস্ট
 
 ```yaml
-# nilx.yaml
-name: com.nilos.demo
+# alap.yaml
+name: com.onuron.demo
 version: 1.0.0
 
 permissions:
@@ -2433,7 +2433,7 @@ match state {
 ### ১৯.১ প্যাকেজ ফরম্যাট
 
 ```bash
-myapp.nilapp/
+myapp.nilax/
 ├── manifest.json
 ├── app.nabc
 ├── ui.nui
@@ -2449,7 +2449,7 @@ myapp.nilapp/
 
 ```json
 {
-    "name": "com.nilos.demo",
+    "name": "com.onuron.demo",
     "version": "1.0.0",
     "runtime": ">=0.1 <0.2",
     "entry": "src/main.nil",
@@ -2458,7 +2458,7 @@ myapp.nilapp/
         "minRefreshRate": 60
     },
     "permissions": ["network", "storage.read"],
-    "targets": ["nilos-arm64", "android-arm64", "ios-arm64", "linux-x86_64"],
+    "targets": ["onuron-arm64", "android-arm64", "ios-arm64", "linux-x86_64"],
     "signature": {
         "algorithm": "Ed25519",
         "key": "fingerprint"
@@ -2484,7 +2484,7 @@ nil lint
 
 # Build
 nil build
-nil build nilos
+nil build onuron
 nil build android
 nil build ios
 nil build linux
@@ -2500,11 +2500,11 @@ nil test --coverage
 
 # Package
 nil package
-nil package --format nilapp
+nil package --format nilax
 
 # Install
-nil install myapp.nilapp
-nil uninstall com.nilos.demo
+nil install myapp.nilax
+nil uninstall com.onuron.demo
 
 # Device
 nil devices
@@ -2520,12 +2520,12 @@ nil registry publish
 ### ২০.২ বিল্ড কনফিগারেশন
 
 ```yaml
-# nilx.yaml
+# alap.yaml
 name: myapp
 version: 0.1.0
 
 targets:
-  nilos:
+  onuron:
     arch: [arm64, x86_64]
   android:
     arch: [arm64, x86_64]
@@ -2588,9 +2588,9 @@ export function activate(context: vscode.ExtensionContext) {
     registerSyntaxHighlighting()
     
     // Commands
-    registerCommand('nilx.build', buildApp)
-    registerCommand('nilx.run', runApp)
-    registerCommand('nilx.test', testApp)
+    registerCommand('alap.build', buildApp)
+    registerCommand('alap.run', runApp)
+    registerCommand('alap.test', testApp)
 }
 ```
 
@@ -2663,7 +2663,7 @@ jobs:
       - run: nil test
       - run: nil test --platform android
       - run: nil test --platform ios
-      - run: nil test --platform nilos
+      - run: nil test --platform onuron
 ```
 
 ---
@@ -2687,7 +2687,7 @@ jobs:
 ### ২৩.২ অপ্টিমাইজেশন ফ্ল্যাগ
 
 ```yaml
-# nilx.yaml
+# alap.yaml
 optimization:
   level: 3  # 0-3
   lto: true
@@ -2743,7 +2743,7 @@ nil migrate --from-arkts src/*.ets
 ## ২৫. রিপোজিটরি স্ট্রাকচার
 
 ```
-nilx/
+alap/
 ├── cmd/
 │   ├── nil/          # CLI tool
 │   └── nilc/         # Compiler
@@ -2777,7 +2777,7 @@ nilx/
 │   ├── gles/
 │   └── software/
 ├── platform/
-│   ├── nilos/
+│   ├── onuron/
 │   ├── android/
 │   ├── ios/
 │   └── linux/
@@ -2834,7 +2834,7 @@ nilx/
 - [ ] Hot Reload
 - [ ] Desktop Packaging
 
-### ফেজ ৪: NilOS (মাস ১৩-১৫)
+### ফেজ ৪: Onuron (মাস ১৩-১৫)
 
 - [ ] nilui-gpu Integration
 - [ ] nilrt Integration
@@ -2875,7 +2875,7 @@ nilx/
 ```nil
 // 1. Hello World
 function main(): void {
-    print("Hello, NilOS!")
+    print("Hello, Onuron!")
 }
 
 // 2. Variables
@@ -3495,10 +3495,10 @@ component NoteItem {
 
 ## ২৯. রিলিজ অ্যাক্সেপ্টেন্স ক্রাইটেরিয়া
 
-### NilX 1.0 রিলিজের শর্ত
+### Alap 1.0 রিলিজের শর্ত
 
 1. **একই সোর্স ট্রি** থেকে ৪টি প্ল্যাটফর্মে বিল্ড সফল হতে হবে:
-   - [ ] NilOS ARM64
+   - [ ] Onuron ARM64
    - [ ] Android ARM64
    - [ ] iOS ARM64
    - [ ] Linux x86_64
@@ -3536,7 +3536,7 @@ component NoteItem {
 
 ## ৩০. তথ্যসূত্র
 
-1. **NilOS Repository**: https://github.com/joysriramsarkar/nilos
+1. **Onuron Repository**: https://github.com/joysriramsarkar/onuron
 
 2. **ArkUI-X**: https://github.com/arkui-x
 
@@ -3575,8 +3575,8 @@ component NoteItem {
 
 ## পরিশিষ্ট B: ইচ্ছাকৃতভাবে যা করা হবে না
 
-1. ❌ NilOS কার্নেল প্রতিস্থাপন
-2. ❌ Android/iOS-এ পুরো NilOS এমুলেশন
+1. ❌ Onuron কার্নেল প্রতিস্থাপন
+2. ❌ Android/iOS-এ পুরো Onuron এমুলেশন
 3. ❌ JavaScript ডায়নামিক সেম্যান্টিক্স
 4. ❌ OpenHarmony বাইনারি কম্প্যাটিবিলিটি
 5. ❌ সব নেটিভ API-কে কমন অ্যাবস্ট্রাকশনে ফিট করা
@@ -3586,10 +3586,10 @@ component NoteItem {
 ## পরিশিষ্ট C: প্রথম PR টেমপ্লেট
 
 ```markdown
-# NilX Framework Initial Implementation
+# Alap Framework Initial Implementation
 
 ## Changes
-- Added `framework/nilx/` structure
+- Added `framework/alap/` structure
 - Go workspace for `nil` and `nilc`
 - Lexer and parser implementation
 - Minimal NABC VM
@@ -3612,4 +3612,4 @@ component NoteItem {
 
 *Version: 1.0.0*
 *Date: 1 September 2026*
-*Author: NilX Architecture Team*
+*Author: Alap Architecture Team*

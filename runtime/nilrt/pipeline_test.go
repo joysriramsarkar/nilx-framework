@@ -10,7 +10,7 @@ func TestCompletePipelineExecution(t *testing.T) {
 component MainView {
     build() {
         Column {
-            Text("NilX on NilOS")
+            Text("Alap on Onuron")
                 .fontSize(22)
                 .color("#FFFFFF")
 
@@ -55,16 +55,16 @@ component MainView {
 	if len(res.VulkanFrame.Commands) < 2 {
 		t.Errorf("expected at least 2 Vulkan draw commands, got %d", len(res.VulkanFrame.Commands))
 	}
-	if !strings.Contains(res.VulkanJSON, "NilX on NilOS") {
+	if !strings.Contains(res.VulkanJSON, "Alap on Onuron") {
 		t.Errorf("expected Vulkan frame JSON to contain text, got:\n%s", res.VulkanJSON)
 	}
 
-	// 5. Verify NilOS & Wayland
-	if res.WaylandTitle != "NilXApp" {
+	// 5. Verify Onuron & Wayland
+	if res.WaylandTitle != "AlapApp" {
 		t.Errorf("expected Wayland title 'NilXApp', got %q", res.WaylandTitle)
 	}
-	if !strings.Contains(res.NilOSKernel, "NilOS") {
-		t.Errorf("expected NilOS kernel identification, got %q", res.NilOSKernel)
+	if !strings.Contains(res.OnuronKernel, "Onuron") && !strings.Contains(res.NilOSKernel, "Onuron") {
+		t.Errorf("expected Onuron kernel identification, got %q", res.NilOSKernel)
 	}
 
 	t.Logf("Pipeline Execution Success! Total time: %s", res.TotalElapsed)

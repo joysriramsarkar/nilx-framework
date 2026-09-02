@@ -1,4 +1,4 @@
-// Package android implements the NilX platform adapter for Android.
+// Package android implements the Alap platform adapter for Android.
 // It generates complete, runnable Android Studio / Gradle project scaffolding with JNI/NDK bridges and real C ABI NilRT integration.
 package android
 
@@ -20,8 +20,8 @@ func New() *Adapter {
 	return &Adapter{
 		MinSDK:    26,
 		TargetSDK: 35,
-		PackageID: "io.nilx.app",
-		AppName:   "NilXApp",
+		PackageID: "io.alap.app",
+		AppName:   "AlapApp",
 	}
 }
 
@@ -29,7 +29,7 @@ func New() *Adapter {
 func (a *Adapter) GenerateProject(outputDir string, bytecode []byte) error {
 	appDir := filepath.Join(outputDir, "app")
 	srcMain := filepath.Join(appDir, "src", "main")
-	javaPkgDir := filepath.Join(srcMain, "java", "io", "nilx", "app")
+	javaPkgDir := filepath.Join(srcMain, "java", "io", "alap", "app")
 	cppDir := filepath.Join(srcMain, "cpp")
 	resDir := filepath.Join(srcMain, "res")
 	valuesDir := filepath.Join(resDir, "values")
@@ -158,9 +158,9 @@ dependencies {
         android:label="%s"
         android:roundIcon="@android:drawable/sym_def_app_icon"
         android:supportsRtl="true"
-        android:theme="@style/Theme.NilXApp">
+        android:theme="@style/Theme.AlapApp">
         <activity
-            android:name=".NilXActivity"
+            android:name=".AlapActivity"
             android:exported="true"
             android:configChanges="orientation|screenSize|screenLayout|keyboardHidden">
             <intent-filter>
@@ -172,8 +172,8 @@ dependencies {
 </manifest>
 `, a.AppName)
 
-	// 6. NilXActivity.kt (Native Activity Loader with Dynamic View Rendering)
-	activityKt := `package io.nilx.app
+	// 6. AlapActivity.kt (Native Activity Loader with Dynamic View Rendering)
+	activityKt := `package io.alap.app
 
 import android.app.Activity
 import android.graphics.Color
@@ -189,22 +189,22 @@ import android.widget.Toast
 import org.json.JSONArray
 import org.json.JSONObject
 
-class NilXActivity : Activity() {
+class AlapActivity : Activity() {
 
     companion object {
         init {
             try {
-                System.loadLibrary("nilx_native")
+                System.loadLibrary("alap_native")
             } catch (e: UnsatisfiedLinkError) {
                 // Shared library loaded dynamically at runtime
             }
         }
     }
 
-    private external fun nilxInit(): Long
-    private external fun nilxLoadBytecode(handle: Long, bytecode: ByteArray): Boolean
-    private external fun nilxGetUIJSON(handle: Long): String
-    private external fun nilxDispatchTouch(handle: Long, x: Float, y: Float): Boolean
+    private external fun alapInit(): Long
+    private external fun alapLoadBytecode(handle: Long, bytecode: ByteArray): Boolean
+    private external fun alapGetUIJSON(handle: Long): String
+    private external fun alapDispatchTouch(handle: Long, x: Float, y: Float): Boolean
 
     private var runtimeHandle: Long = 0
     private lateinit var rootContainer: LinearLayout
@@ -233,21 +233,21 @@ class NilXActivity : Activity() {
         scrollView.addView(rootContainer)
         setContentView(scrollView)
 
-        loadAndRenderNilXApp()
+        loadAndRenderAlapApp()
     }
 
-    private fun loadAndRenderNilXApp() {
+    private fun loadAndRenderAlapApp() {
         try {
             val assetStream = assets.open("main.nabc")
             val bytes = assetStream.readBytes()
             assetStream.close()
 
-            runtimeHandle = try { nilxInit() } catch (e: Throwable) { 0L }
+            runtimeHandle = try { alapInit() } catch (e: Throwable) { 0L }
             var uiJson = ""
             if (runtimeHandle != 0L) {
-                val ok = nilxLoadBytecode(runtimeHandle, bytes)
+                val ok = alapLoadBytecode(runtimeHandle, bytes)
                 if (ok) {
-                    uiJson = nilxGetUIJSON(runtimeHandle)
+                    uiJson = alapGetUIJSON(runtimeHandle)
                 }
             }
 
@@ -255,7 +255,7 @@ class NilXActivity : Activity() {
                 renderUIHierarchy(JSONObject(uiJson), rootContainer)
             } else {
                 val statusText = TextView(this).apply {
-                    text = "NilX Mobile Runtime: Bytecode loaded and running (${bytes.size} bytes)."
+                    text = "Alap Mobile Runtime: Bytecode loaded and running (${bytes.size} bytes)."
                     textSize = 16f
                     setTextColor(Color.parseColor("#176BFF"))
                 }
@@ -263,7 +263,7 @@ class NilXActivity : Activity() {
             }
         } catch (e: Exception) {
             val errorText = TextView(this).apply {
-                text = "NilX Mobile: " + e.message
+                text = "Alap Mobile: " + e.message
                 textSize = 16f
                 setTextColor(Color.RED)
             }
@@ -302,9 +302,9 @@ class NilXActivity : Activity() {
                     setTextColor(Color.parseColor(fgHex))
                     setOnClickListener {
                         if (runtimeHandle != 0L) {
-                            nilxDispatchTouch(runtimeHandle, it.x, it.y)
+                            alapDispatchTouch(runtimeHandle, it.x, it.y)
                         }
-                        Toast.makeText(this@NilXActivity, "Triggered: $text", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(this@AlapActivity, "Triggered: $text", Toast.LENGTH_SHORT).show()
                     }
                     val layoutParams = LinearLayout.LayoutParams(
                         ViewGroup.LayoutParams.WRAP_CONTENT,
@@ -352,22 +352,22 @@ class NilXActivity : Activity() {
 
 	// 7. CMakeLists.txt
 	cmakeLists := `cmake_minimum_required(VERSION 3.22.1)
-project("nilx_native")
+project("alap_native")
 
-add_library(nilx_native SHARED
-    nilx_jni.c
+add_library(alap_native SHARED
+    alap_jni.c
 )
 
 find_library(log-lib log)
 find_library(android-lib android)
 
-target_link_libraries(nilx_native
+target_link_libraries(alap_native
     ${log-lib}
     ${android-lib}
 )
 `
 
-	// 8. nilx_jni.c
+	// 8. alap_jni.c
 	jniC := `#include <jni.h>
 #include <android/log.h>
 #include <stdlib.h>
@@ -376,40 +376,40 @@ target_link_libraries(nilx_native
 #include <stdbool.h>
 #include "nilabi.h"
 
-#define LOG_TAG "NilX_JNI"
+#define LOG_TAG "Alap_JNI"
 #define LOGI(...) __android_log_print(ANDROID_LOG_INFO, LOG_TAG, __VA_ARGS__)
 #define LOGE(...) __android_log_print(ANDROID_LOG_ERROR, LOG_TAG, __VA_ARGS__)
 
 JNIEXPORT jlong JNICALL
-Java_io_nilx_app_NilXActivity_nilxInit(JNIEnv *env, jobject thiz) {
-    LOGI("NilX JNI: Initializing NilRT runtime instance");
-    NilContext ctx = nilx_runtime_create();
+Java_io_alap_app_AlapActivity_alapInit(JNIEnv *env, jobject thiz) {
+    LOGI("Alap JNI: Initializing NilRT runtime instance");
+    NilContext ctx = alap_runtime_create();
     return (jlong)(intptr_t)ctx;
 }
 
 JNIEXPORT jboolean JNICALL
-Java_io_nilx_app_NilXActivity_nilxLoadBytecode(JNIEnv *env, jobject thiz, jlong handle, jbyteArray bytecode) {
+Java_io_alap_app_AlapActivity_alapLoadBytecode(JNIEnv *env, jobject thiz, jlong handle, jbyteArray bytecode) {
     if (handle == 0) return JNI_FALSE;
     NilContext ctx = (NilContext)(intptr_t)handle;
     jsize len = (*env)->GetArrayLength(env, bytecode);
     jbyte *bytes = (*env)->GetByteArrayElements(env, bytecode, NULL);
 
-    NilResult res = nilx_runtime_run(ctx, (uint8_t*)bytes, (size_t)len);
+    NilResult res = alap_runtime_run(ctx, (uint8_t*)bytes, (size_t)len);
     (*env)->ReleaseByteArrayElements(env, bytecode, bytes, JNI_ABORT);
 
     if (!res.ok) {
-        LOGE("NilX JNI: Runtime execution error: %s", res.err.message ? res.err.message : "unknown error");
+        LOGE("Alap JNI: Runtime execution error: %s", res.err.message ? res.err.message : "unknown error");
         return JNI_FALSE;
     }
-    LOGI("NilX JNI: Successfully loaded and executed %d bytes of NABC bytecode", (int)len);
+    LOGI("Alap JNI: Successfully loaded and executed %d bytes of NABC bytecode", (int)len);
     return JNI_TRUE;
 }
 
 JNIEXPORT jstring JNICALL
-Java_io_nilx_app_NilXActivity_nilxGetUIJSON(JNIEnv *env, jobject thiz, jlong handle) {
+Java_io_alap_app_AlapActivity_alapGetUIJSON(JNIEnv *env, jobject thiz, jlong handle) {
     if (handle == 0) return (*env)->NewStringUTF(env, "{}");
     NilContext ctx = (NilContext)(intptr_t)handle;
-    char* jsonStr = nilx_runtime_get_ui_json(ctx);
+    char* jsonStr = alap_runtime_get_ui_json(ctx);
     if (!jsonStr) {
         return (*env)->NewStringUTF(env, "{}");
     }
@@ -419,10 +419,10 @@ Java_io_nilx_app_NilXActivity_nilxGetUIJSON(JNIEnv *env, jobject thiz, jlong han
 }
 
 JNIEXPORT jboolean JNICALL
-Java_io_nilx_app_NilXActivity_nilxDispatchTouch(JNIEnv *env, jobject thiz, jlong handle, jfloat x, jfloat y) {
+Java_io_alap_app_AlapActivity_alapDispatchTouch(JNIEnv *env, jobject thiz, jlong handle, jfloat x, jfloat y) {
     if (handle == 0) return JNI_FALSE;
     NilContext ctx = (NilContext)(intptr_t)handle;
-    return nilx_runtime_dispatch_touch(ctx, (float)x, (float)y) ? JNI_TRUE : JNI_FALSE;
+    return alap_runtime_dispatch_touch(ctx, (float)x, (float)y) ? JNI_TRUE : JNI_FALSE;
 }
 `
 
@@ -453,11 +453,11 @@ typedef struct NilResult {
     NilError    err;
 } NilResult;
 
-NilContext nilx_runtime_create(void);
-void       nilx_runtime_destroy(NilContext ctx);
-NilResult  nilx_runtime_run(NilContext ctx, uint8_t* nabc, size_t nabc_len);
-bool       nilx_runtime_dispatch_touch(NilContext ctx, float x, float y);
-char*      nilx_runtime_get_ui_json(NilContext ctx);
+NilContext alap_runtime_create(void);
+void       alap_runtime_destroy(NilContext ctx);
+NilResult  alap_runtime_run(NilContext ctx, uint8_t* nabc, size_t nabc_len);
+bool       alap_runtime_dispatch_touch(NilContext ctx, float x, float y);
+char*      alap_runtime_get_ui_json(NilContext ctx);
 
 #ifdef __cplusplus
 }
@@ -473,7 +473,7 @@ char*      nilx_runtime_get_ui_json(NilContext ctx);
 
 	stylesXml := `<?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="Theme.NilXApp" parent="android:Theme.Material.Light.NoActionBar">
+    <style name="Theme.AlapApp" parent="android:Theme.Material.Light.NoActionBar">
         <item name="android:statusBarColor">#176BFF</item>
     </style>
 </resources>
@@ -486,9 +486,9 @@ char*      nilx_runtime_get_ui_json(NilContext ctx);
 		filepath.Join(outputDir, "gradle.properties"):   gradleProperties,
 		filepath.Join(appDir, "build.gradle.kts"):       appBuildGradle,
 		filepath.Join(srcMain, "AndroidManifest.xml"):   manifest,
-		filepath.Join(javaPkgDir, "NilXActivity.kt"):    activityKt,
+		filepath.Join(javaPkgDir, "AlapActivity.kt"):    activityKt,
 		filepath.Join(cppDir, "CMakeLists.txt"):         cmakeLists,
-		filepath.Join(cppDir, "nilx_jni.c"):            jniC,
+		filepath.Join(cppDir, "alap_jni.c"):            jniC,
 		filepath.Join(cppDir, "nilabi.h"):              nilabiH,
 		filepath.Join(valuesDir, "strings.xml"):         stringsXml,
 		filepath.Join(valuesDir, "styles.xml"):          stylesXml,

@@ -1,4 +1,4 @@
-// Package linux implements the NilX platform adapter for Linux (Wayland, X11, AppImage, Flatpak).
+// Package linux implements the Alap platform adapter for Linux (Wayland, X11, AppImage, Flatpak).
 package linux
 
 import (
@@ -17,8 +17,8 @@ type Adapter struct {
 func New() *Adapter {
 	return &Adapter{
 		Display: "wayland",
-		AppName: "NilXApp",
-		AppID:   "org.nilx.app",
+		AppName: "AlapApp",
+		AppID:   "org.alap.app",
 	}
 }
 
@@ -41,7 +41,7 @@ func (a *Adapter) GenerateProject(outputDir string, bytecode []byte) error {
 	desktopFile := fmt.Sprintf(`[Desktop Entry]
 Type=Application
 Name=%s
-Exec=nilx_app
+Exec=alap_app
 Icon=%s
 Categories=Utility;Development;
 Terminal=false
@@ -54,16 +54,16 @@ StartupWMClass=%s
 HERE="$(dirname "$(readlink -f "${0}")")"
 export PATH="${HERE}/usr/bin:${PATH}"
 export LD_LIBRARY_PATH="${HERE}/usr/lib:${LD_LIBRARY_PATH}"
-exec "${HERE}/usr/bin/nilx_app" "$@"
+exec "${HERE}/usr/bin/alap_app" "$@"
 `
 
-	// 3. Flatpak Manifest (org.nilx.app.json)
+	// 3. Flatpak Manifest (org.alap.app.json)
 	flatpakManifest := fmt.Sprintf(`{
     "app-id": "%s",
     "runtime": "org.freedesktop.Platform",
     "runtime-version": "23.08",
     "sdk": "org.freedesktop.Sdk",
-    "command": "nilx_app",
+    "command": "alap_app",
     "finish-args": [
         "--socket=wayland",
         "--socket=fallback-x11",
@@ -73,10 +73,10 @@ exec "${HERE}/usr/bin/nilx_app" "$@"
     ],
     "modules": [
         {
-            "name": "nilx_app",
+            "name": "alap_app",
             "buildsystem": "simple",
             "build-commands": [
-                "install -D nilx_app /app/bin/nilx_app",
+                "install -D alap_app /app/bin/alap_app",
                 "install -D main.nabc /app/bin/main.nabc"
             ]
         }
@@ -87,7 +87,7 @@ exec "${HERE}/usr/bin/nilx_app" "$@"
 	// 4. Standalone launch script
 	runSh := `#!/bin/bash
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-echo "Starting NilX Application on Linux ($XDG_SESSION_TYPE)..."
+echo "Starting Alap Application on Linux ($XDG_SESSION_TYPE)..."
 exec nilc -in "$DIR/main.nabc" -run "$@"
 `
 

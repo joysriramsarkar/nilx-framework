@@ -1,10 +1,10 @@
-/* nilabi.h — NilX Stable C ABI
+/* nilabi.h — Alap Stable C ABI
  * Version: 0.1.0
  *
  * This header defines the stable C ABI used by all platform adapters.
- * All NilX plugin calls cross this boundary.
+ * All Alap plugin calls cross this boundary.
  *
- * Copyright (c) 2026 Joy Sarkar / NilOS Project
+ * Copyright (c) 2026 Joy Sarkar / Onuron Project
  * License: MIT
  */
 #pragma once
@@ -132,7 +132,7 @@ void      nilx_ui_commit(NilContext ctx);  /* flush UI tree changes to renderer 
 
 /* ─── Platform ──────────────────────────────────────────────────────────────── */
 typedef struct NilPlatformInfo {
-    const char* platform;    /* "nilos" | "android" | "ios" | "linux" */
+    const char* platform;    /* "onuron" | "android" | "ios" | "linux" */
     const char* arch;        /* "arm64" | "x86_64" | "riscv64" */
     const char* os_version;
     int32_t     screen_width;
@@ -162,13 +162,16 @@ typedef enum NilCapability {
 bool nilx_capability_check(NilContext ctx, NilCapability cap);
 void nilx_capability_request(NilContext ctx, NilCapability cap, NilCallback result_cb);
 
-/* ─── NilOS-specific (only available on NilOS target) ──────────────────────── */
-#ifdef NILX_TARGET_NILOS
-const char* nilos_kernel_version(void);
-int32_t     nilos_trigger_sensor(int32_t sensor_id);
-int32_t     nilos_bus_call(const char* service, const char* method,
+/* ─── Onuron-specific (only available on Onuron target) ──────────────────────── */
+#if defined(ALAP_TARGET_ONURON) || defined(NILX_TARGET_NILOS)
+const char* onuron_kernel_version(void);
+#define nilos_kernel_version onuron_kernel_version
+int32_t     onuron_trigger_sensor(int32_t sensor_id);
+#define nilos_trigger_sensor onuron_trigger_sensor
+int32_t     onuron_bus_call(const char* service, const char* method,
                            const uint8_t* args, size_t args_len,
                            uint8_t* out, size_t* out_len);
+#define nilos_bus_call onuron_bus_call
 #endif
 
 #ifdef __cplusplus

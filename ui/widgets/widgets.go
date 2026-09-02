@@ -1,8 +1,8 @@
-// Package widgets provides built-in declarative UI component definitions and builder helpers for NilX.
+// Package widgets provides built-in declarative UI component definitions and builder helpers for Alap.
 package widgets
 
 import (
-	"github.com/joysriramsarkar/nilx-framework/ui/engine"
+	"github.com/joysriramsarkar/alap-framework/ui/engine"
 )
 
 // Column creates a vertical flex container.

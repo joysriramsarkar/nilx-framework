@@ -1,4 +1,4 @@
-// Package nilui implements the native NilOS Vulkan / Wayland UI rendering bridge for NilX.
+// Package nilui implements the native Onuron Vulkan / Wayland UI rendering bridge for Alap.
 package nilui
 
 import (
@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"sync"
 
-	"github.com/joysriramsarkar/nilx-framework/ui/engine"
+	"github.com/joysriramsarkar/alap-framework/ui/engine"
 )
 
 // DrawCommandKind specifies the primitive operation for nilui-gpu.
@@ -64,7 +64,7 @@ func NewRenderer(title string, width, height int) *Renderer {
 	}
 }
 
-// RenderTree converts a NilX UI node hierarchy into GPU draw commands.
+// RenderTree converts an Alap UI node hierarchy into GPU draw commands.
 func (r *Renderer) RenderTree(root *engine.WidgetNode) *FramePacket {
 	r.mu.Lock()
 	defer r.mu.Unlock()

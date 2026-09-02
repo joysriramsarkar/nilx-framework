@@ -1,22 +1,22 @@
 // Package nilrt implements the official NilRT Runtime Supervisor.
 // It executes the unified pipeline:
-// NilLang → nilc → NABC → NilRT → NilUI → Layout → Vulkan → Wayland → NilOS
+// NilLang → nilc → NABC → NilRT → NilUI → Layout → Vulkan → Wayland → Onuron
 package nilrt
 
 import (
 	"fmt"
 	"time"
 
-	"github.com/joysriramsarkar/nilx-framework/compiler/codegen"
-	"github.com/joysriramsarkar/nilx-framework/compiler/lexer"
-	"github.com/joysriramsarkar/nilx-framework/compiler/parser"
-	"github.com/joysriramsarkar/nilx-framework/compiler/types"
-	"github.com/joysriramsarkar/nilx-framework/platform/nilos"
-	"github.com/joysriramsarkar/nilx-framework/platform/nilos/nilui"
-	"github.com/joysriramsarkar/nilx-framework/runtime/gc"
-	"github.com/joysriramsarkar/nilx-framework/runtime/scheduler"
-	"github.com/joysriramsarkar/nilx-framework/runtime/vm"
-	"github.com/joysriramsarkar/nilx-framework/ui/engine"
+	"github.com/joysriramsarkar/alap-framework/compiler/codegen"
+	"github.com/joysriramsarkar/alap-framework/compiler/lexer"
+	"github.com/joysriramsarkar/alap-framework/compiler/parser"
+	"github.com/joysriramsarkar/alap-framework/compiler/types"
+	"github.com/joysriramsarkar/alap-framework/platform/onuron"
+	"github.com/joysriramsarkar/alap-framework/platform/onuron/nilui"
+	"github.com/joysriramsarkar/alap-framework/runtime/gc"
+	"github.com/joysriramsarkar/alap-framework/runtime/scheduler"
+	"github.com/joysriramsarkar/alap-framework/runtime/vm"
+	"github.com/joysriramsarkar/alap-framework/ui/engine"
 )
 
 // PipelineResult encapsulates telemetry and frame artifacts for all 8 stages.
@@ -30,6 +30,7 @@ type PipelineResult struct {
 	VulkanFrame  *nilui.FramePacket `json:"vulkanFrame"`
 	VulkanJSON   string             `json:"vulkanJson"`
 	WaylandTitle string             `json:"waylandTitle"`
+	OnuronKernel string             `json:"onuronKernel"`
 	NilOSKernel  string             `json:"nilosKernel"`
 	StageTimes   map[string]string  `json:"stageTimes"`
 	TotalElapsed string             `json:"totalElapsed"`
@@ -39,12 +40,12 @@ type PipelineResult struct {
 type Engine struct {
 	Scheduler *scheduler.Scheduler
 	Memory    *gc.MemoryManager
-	Adapter   *nilos.Adapter
+	Adapter   *onuron.Adapter
 }
 
 // New creates a new NilRT runtime engine.
 func New() *Engine {
-	adapter := nilos.New()
+	adapter := onuron.New()
 	_ = adapter.Init()
 	return &Engine{
 		Scheduler: scheduler.New(4),
@@ -117,7 +118,7 @@ func (e *Engine) ExecuteFullPipeline(src string, width, height int) (*PipelineRe
 
 	// ─── Stage 7: Vulkan GPU Command Buffer Compilation (nilui-gpu) ──────
 	s6 := time.Now()
-	vulkanRenderer := nilui.NewRenderer("NilXApp", width, height)
+	vulkanRenderer := nilui.NewRenderer("AlapApp", width, height)
 	framePacket := vulkanRenderer.RenderTree(uiTree.Root)
 	frameJSON, err := vulkanRenderer.ExportFrameJSON(framePacket)
 	if err != nil {
@@ -127,10 +128,10 @@ func (e *Engine) ExecuteFullPipeline(src string, width, height int) (*PipelineRe
 
 	// ─── Stage 8: Wayland Surface Presentation on NilOS ───────────────────
 	s7 := time.Now()
-	_ = e.Adapter.CreateWindow("NilXApp", width, height)
+	_ = e.Adapter.CreateWindow("AlapApp", width, height)
 	_ = e.Adapter.SendNotification("NilRT", "Frame rendered on Wayland surface")
 	stageTimes["7_wayland_surface"] = time.Since(s7).String()
-	stageTimes["8_nilos_host"] = e.Adapter.GetKernelVersion()
+	stageTimes["8_onuron_host"] = e.Adapter.GetKernelVersion()
 
 	return &PipelineResult{
 		SourceCode:   src,
@@ -141,7 +142,8 @@ func (e *Engine) ExecuteFullPipeline(src string, width, height int) (*PipelineRe
 		LayoutHeight: float64(height),
 		VulkanFrame:  framePacket,
 		VulkanJSON:   frameJSON,
-		WaylandTitle: "NilXApp",
+		WaylandTitle: "AlapApp",
+		OnuronKernel: e.Adapter.GetKernelVersion(),
 		NilOSKernel:  e.Adapter.GetKernelVersion(),
 		StageTimes:   stageTimes,
 		TotalElapsed: time.Since(totalStart).String(),

@@ -1,5 +1,5 @@
-// Package abi implements the ABI boundary for the NilX Runtime.
-// It allows embedding NilX in Android (JNI/NDK), iOS (Swift/Metal), and desktop apps.
+// Package abi implements the ABI boundary for the Alap Runtime.
+// It allows embedding Alap in Android (JNI/NDK), iOS (Swift/Metal), and desktop apps.
 package abi
 
 import (
@@ -7,12 +7,12 @@ import (
 	"fmt"
 	"sync"
 
-	"github.com/joysriramsarkar/nilx-framework/compiler/codegen"
-	"github.com/joysriramsarkar/nilx-framework/runtime/vm"
-	"github.com/joysriramsarkar/nilx-framework/ui/engine"
+	"github.com/joysriramsarkar/alap-framework/compiler/codegen"
+	"github.com/joysriramsarkar/alap-framework/runtime/vm"
+	"github.com/joysriramsarkar/alap-framework/ui/engine"
 )
 
-// RuntimeContext represents an active NilX VM and UI runtime instance.
+// RuntimeContext represents an active Alap VM and UI runtime instance.
 type RuntimeContext struct {
 	VM      *vm.VM
 	Module  *codegen.Module

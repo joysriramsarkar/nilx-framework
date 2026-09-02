@@ -1,7 +1,7 @@
 // Package ast defines the Abstract Syntax Tree for NilLang.
 package ast
 
-import "github.com/joysriramsarkar/nilx-framework/compiler/lexer"
+import "github.com/joysriramsarkar/alap-framework/compiler/lexer"
 
 // ─── Node interfaces ──────────────────────────────────────────────────────────
 

@@ -4,13 +4,13 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/joysriramsarkar/nilx-framework/compiler/codegen"
-	"github.com/joysriramsarkar/nilx-framework/compiler/lexer"
-	"github.com/joysriramsarkar/nilx-framework/compiler/parser"
-	"github.com/joysriramsarkar/nilx-framework/compiler/types"
-	"github.com/joysriramsarkar/nilx-framework/runtime/actor"
-	"github.com/joysriramsarkar/nilx-framework/runtime/vm"
-	"github.com/joysriramsarkar/nilx-framework/ui/state"
+	"github.com/joysriramsarkar/alap-framework/compiler/codegen"
+	"github.com/joysriramsarkar/alap-framework/compiler/lexer"
+	"github.com/joysriramsarkar/alap-framework/compiler/parser"
+	"github.com/joysriramsarkar/alap-framework/compiler/types"
+	"github.com/joysriramsarkar/alap-framework/runtime/actor"
+	"github.com/joysriramsarkar/alap-framework/runtime/vm"
+	"github.com/joysriramsarkar/alap-framework/ui/state"
 )
 
 // compile runs the full NilLang pipeline and returns the VM output.
@@ -50,9 +50,9 @@ func compile(t *testing.T, src string) string {
 // ─── Tests ────────────────────────────────────────────────────────────────────
 
 func TestHelloWorld(t *testing.T) {
-	src := `print("Hello NilOS")`
+	src := `print("Hello Onuron")`
 	out := compile(t, src)
-	if out != "Hello NilOS" {
+	if out != "Hello Onuron" {
 		t.Errorf("expected 'Hello NilOS', got %q", out)
 	}
 }
@@ -84,12 +84,12 @@ print(a % b)
 
 func TestStringConcat(t *testing.T) {
 	src := `
-let name: string = "NilOS"
+let name: string = "Onuron"
 let msg: string = "Hello " + name + "!"
 print(msg)
 `
 	out := compile(t, src)
-	if out != "Hello NilOS!" {
+	if out != "Hello Onuron!" {
 		t.Errorf("expected 'Hello NilOS!', got %q", out)
 	}
 }
@@ -330,7 +330,7 @@ print(sum)
 func TestConstant(t *testing.T) {
 	src := `
 const PI: f64 = 3
-const APP: string = "NilOS"
+const APP: string = "Onuron"
 print(PI)
 print(APP)
 `
@@ -339,8 +339,8 @@ print(APP)
 	if strings.TrimSpace(lines[0]) != "3" {
 		t.Errorf("expected '3', got %q", lines[0])
 	}
-	if strings.TrimSpace(lines[1]) != "NilOS" {
-		t.Errorf("expected 'NilOS', got %q", lines[1])
+	if strings.TrimSpace(lines[1]) != "Onuron" {
+		t.Errorf("expected 'Onuron', got %q", lines[1])
 	}
 }
 
@@ -422,7 +422,7 @@ func TestUIComponentTree(t *testing.T) {
 component App {
     build() {
         Column {
-            Text("NilX Mobile App")
+            Text("Alap Mobile App")
             Button("Click Me")
         }
     }
@@ -492,7 +492,7 @@ print(math_max(10, 20))
 
 func TestStdlibCrypto(t *testing.T) {
 	src := `
-let hash: string = crypto_sha256("nilx")
+let hash: string = crypto_sha256("alap")
 print(hash)
 let uid: string = crypto_uuid()
 print(uid.length)

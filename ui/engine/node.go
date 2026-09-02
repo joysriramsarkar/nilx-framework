@@ -1,4 +1,4 @@
-// Package engine provides the core UI tree model, reactive state binding, and rendering abstractions for NilX.
+// Package engine provides the core UI tree model, reactive state binding, and rendering abstractions for Alap.
 package engine
 
 import (
@@ -25,7 +25,7 @@ type Spacing struct {
 // EventHandler is a callback invoked when a UI event fires.
 type EventHandler func(args ...interface{})
 
-// WidgetNode represents a single declarative UI element in the NilX UI hierarchy.
+// WidgetNode represents a single declarative UI element in the Alap UI hierarchy.
 type WidgetNode struct {
 	ID       string                  `json:"id"`
 	Type     string                  `json:"type"` // e.g. "Column", "Row", "Text", "Button"

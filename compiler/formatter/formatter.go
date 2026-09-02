@@ -4,7 +4,7 @@ package formatter
 import (
 	"strings"
 
-	"github.com/joysriramsarkar/nilx-framework/compiler/lexer"
+	"github.com/joysriramsarkar/alap-framework/compiler/lexer"
 )
 
 // Format formats a NilLang source code string with standard 4-space indentation and clean spacing.

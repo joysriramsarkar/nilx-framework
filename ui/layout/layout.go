@@ -1,10 +1,10 @@
-// Package layout implements full Flexbox layout calculation for NilX components.
+// Package layout implements full Flexbox layout calculation for Alap components.
 package layout
 
 import (
 	"strings"
 
-	"github.com/joysriramsarkar/nilx-framework/ui/engine"
+	"github.com/joysriramsarkar/alap-framework/ui/engine"
 )
 
 // LayoutContext holds screen size and rendering constraints.

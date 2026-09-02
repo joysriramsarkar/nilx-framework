@@ -1,17 +1,17 @@
-NILX FRAMEWORK + NILLANG
+ALAP FRAMEWORK + NILLANG
 
 সম্পূর্ণ প্রযুক্তিগত ডকুমেন্টেশন / Complete Technical Documentation
 
 Version 0.1 Architecture Specification • 1 September 2026
 
-Target: NilOS, Android, iOS, Linux • Primary language: NilLang
+Target: Onuron, Android, iOS, Linux • Primary language: NilLang
 
 
 Executive note / নির্বাহী নোট
 
-NilX is designed as a native-first cross-platform application platform for NilOS. It deliberately borrows the declarative UI model and developer ergonomics of ArkTS/ArkUI, the static type discipline and familiar syntax of TypeScript, and the concurrency/tooling philosophy associated with Go. It is not a source-level clone of ArkTS, nor a TypeScript transpiler with platform-specific hacks.
+Alap is designed as a native-first cross-platform application platform for Onuron. It deliberately borrows the declarative UI model and developer ergonomics of ArkTS/ArkUI, the static type discipline and familiar syntax of TypeScript, and the concurrency/tooling philosophy associated with Go. It is not a source-level clone of ArkTS, nor a TypeScript transpiler with platform-specific hacks.
 
-NilX-কে এমনভাবে নকশা করা হয়েছে যাতে NilOS-এর নিজস্ব UI/runtime/security stack মূল প্ল্যাটফর্ম হয়, আর Android, iOS এবং Linux-এ thin adaptation layer-এর মাধ্যমে একই application source ব্যবহার করা যায়।
+Alap-কে এমনভাবে নকশা করা হয়েছে যাতে Onuron (অনুরণ ওএস)-এর নিজস্ব UI/runtime/security stack মূল প্ল্যাটফর্ম হয়, আর Android, iOS এবং Linux-এ thin adaptation layer-এর মাধ্যমে একই application source ব্যবহার করা যায়।
 
 
 ## Document scope / ডকুমেন্টের পরিধি
@@ -25,7 +25,7 @@ This document defines the proposed language, runtime, UI framework, compiler, AB
 
 1. Vision and principles / লক্ষ্য ও নীতি
 
-2. NilOS baseline / বর্তমান NilOS ভিত্তি
+2. Onuron baseline / বর্তমান Onuron ভিত্তি
 
 3. System architecture / সামগ্রিক স্থাপত্য
 
@@ -59,7 +59,7 @@ This document defines the proposed language, runtime, UI framework, compiler, AB
 
 18. Linux / Linux port
 
-19. NilOS / NilOS port
+19. Onuron / Onuron port
 
 20. Native extensions and FFI / FFI
 
@@ -94,24 +94,24 @@ This document defines the proposed language, runtime, UI framework, compiler, AB
 
 বাংলা
 
-NilX-এর মূল লক্ষ্য হলো একবার application logic ও UI লিখে NilOS, Android, iOS এবং Linux-এ ship করা। Platform-specific code থাকবে, কিন্তু সেটি boundary-এর মধ্যে থাকবে। Framework-এর কেন্দ্রে থাকবে stable ABI এবং capability-based API।
+Alap-এর মূল লক্ষ্য হলো একবার application logic ও UI লিখে Onuron, Android, iOS এবং Linux-এ ship করা। Platform-specific code থাকবে, কিন্তু সেটি boundary-এর মধ্যে থাকবে। Framework-এর কেন্দ্রে থাকবে stable ABI এবং capability-based API।
 
 English
 
-NilX aims to let developers build once and ship the same application model to NilOS, Android, iOS, and Linux. Platform-specific implementation remains necessary, but it is isolated behind explicit boundaries. The most important long-term asset is the stable application ABI and capability model, not a particular renderer or VM implementation.
+Alap aims to let developers build once and ship the same application model to Onuron, Android, iOS, and Linux. Platform-specific implementation remains necessary, but it is isolated behind explicit boundaries. The most important long-term asset is the stable application ABI and capability model, not a particular renderer or VM implementation.
 
 
-## 2. বর্তমান NilOS ভিত্তি / Current NilOS Baseline
+## 2. বর্তমান Onuron ভিত্তি / Current Onuron Baseline
 
 বাংলা
 
-বর্তমান public NilOS repository-তে kernel configuration, HAL, `nilrt` sandbox, `nilui`, Vulkan-based `nilui-gpu`, Wayland compositor (`nilshell`), SoftBus, signed package manager এবং Android compatibility layer ইতিমধ্যে architectural building blocks হিসেবে দেখা যাচ্ছে। GitHub README অনুযায়ী repository-টি x86_64/ARM64 image build এবং QEMU run script-ও দেয়।
+বর্তমান public Onuron repository-তে kernel configuration, HAL, `nilrt` sandbox, `nilui`, Vulkan-based `nilui-gpu`, Wayland compositor (`nilshell`), SoftBus, signed package manager এবং Android compatibility layer ইতিমধ্যে architectural building blocks হিসেবে দেখা যাচ্ছে। GitHub README অনুযায়ী repository-টি x86_64/ARM64 image build এবং QEMU run script-ও দেয়।
 
 English
 
-The current public NilOS repository exposes architectural building blocks that are directly useful to NilX: kernel configuration, HAL, `nilrt` sandboxing, `nilui`, Vulkan-based `nilui-gpu`, a wlroots-based Wayland compositor (`nilshell`), SoftBus, a signed package manager, and an Android compatibility layer. Its README also documents x86_64/ARM64 image building and QEMU execution.
+The current public Onuron repository exposes architectural building blocks that are directly useful to Alap: kernel configuration, HAL, `nilrt` sandboxing, `nilui`, Vulkan-based `nilui-gpu`, a wlroots-based Wayland compositor (`nilshell`), SoftBus, a signed package manager, and an Android compatibility layer. Its README also documents x86_64/ARM64 image building and QEMU execution.
 
-nilos/
+onuron/
 ├── kernel/
 ├── hal/
 ├── runtime/
@@ -127,20 +127,20 @@ nilos/
 ├── apps/
 └── security/selinux/
 
-Source: https://github.com/joysriramsarkar/nilos
+Source: https://github.com/joysriramsarkar/onuron
 
-উৎস / Source: NilOS GitHub repository, accessed 1 September 2026.
+উৎস / Source: Onuron GitHub repository, accessed 1 September 2026.
 
 
 ## 3. সামগ্রিক স্থাপত্য / System Architecture
 
 বাংলা
 
-NilX পাঁচটি প্রধান স্তরকে পৃথক করবে: language/compiler, runtime, UI, graphics, এবং platform adapter. Application source থেকে NIR এবং NUI তৈরি হবে; runtime bytecode বা AOT code চালাবে; UI engine scene tree-কে layout/paint pipeline-এ পাঠাবে; platform adapter OS services এবং surface lifecycle সরবরাহ করবে।
+Alap পাঁচটি প্রধান স্তরকে পৃথক করবে: language/compiler, runtime, UI, graphics, এবং platform adapter. Application source থেকে NIR এবং NUI তৈরি হবে; runtime bytecode বা AOT code চালাবে; UI engine scene tree-কে layout/paint pipeline-এ পাঠাবে; platform adapter OS services এবং surface lifecycle সরবরাহ করবে।
 
 English
 
-NilX separates language/compiler, runtime, UI, graphics, and platform adaptation. Application source lowers into a neutral intermediate representation and a UI representation; the runtime executes bytecode or AOT code; the UI engine turns state into a retained scene tree; platform adapters provide lifecycle, surfaces, input, security and system services.
+Alap separates language/compiler, runtime, UI, graphics, and platform adaptation. Application source lowers into a neutral intermediate representation and a UI representation; the runtime executes bytecode or AOT code; the UI engine turns state into a retained scene tree; platform adapters provide lifecycle, surfaces, input, security and system services.
 
 NilLang source
    │
@@ -150,7 +150,7 @@ NilLang source
                                                   │
         ┌─────────────────────────────────────────┼───────────────┐
         │                                         │               │
-      NilOS                                    Android            iOS
+      Onuron                                    Android            iOS
       Wayland                                 Surface/JNI      UIKit/Metal
         │                                         │               │
         └──────────────────────── Linux ──────────┘
@@ -167,7 +167,7 @@ English
 NilLang should feel familiar to TypeScript and ArkTS developers, but its semantics are independently specified. It should borrow concurrency primitives, package simplicity, tooling philosophy, and explicit error handling ideas associated with Go rather than copying Go syntax wholesale.
 
 let count: i32 = 0
-const title: string = "NilX"
+const title: string = "Alap"
 
 function add(a: i32, b: i32): i32 {
   return a + b
@@ -351,11 +351,11 @@ nil.distributed
 
 বাংলা
 
-প্রথম compiler Go-তে লেখা হবে। কারণ CLI, parser, package graph, cross-compilation এবং developer tooling দ্রুত এগোনোর সুবিধা আছে। Runtime আলাদা implementation language-এ হতে পারে; NilOS-এর বিদ্যমান Rust components অকারণে rewrite করা যাবে না।
+প্রথম compiler Go-তে লেখা হবে। কারণ CLI, parser, package graph, cross-compilation এবং developer tooling দ্রুত এগোনোর সুবিধা আছে। Runtime আলাদা implementation language-এ হতে পারে; Onuron-এর বিদ্যমান Rust components অকারণে rewrite করা যাবে না।
 
 English
 
-The first compiler should be implemented in Go. Go is a good fit for the CLI, parser, package graph, cross-compilation, and developer tooling. The runtime may use another implementation language; existing Rust components in NilOS should not be rewritten merely for language consistency.
+The first compiler should be implemented in Go. Go is a good fit for the CLI, parser, package graph, cross-compilation, and developer tooling. The runtime may use another implementation language; existing Rust components in Onuron should not be rewritten merely for language consistency.
 
 Source
   ↓ lexer/parser
@@ -447,11 +447,11 @@ Recommendation: use a generational moving collector for the application heap, bu
 
 বাংলা
 
-NilOS/Linux/Android-এ Vulkan হবে primary renderer যেখানে supported; iOS-এ Metal; software renderer CI/headless environment-এর জন্য। Existing NilOS `nilui-gpu`-কে first backend candidate হিসেবে reuse করা হবে।
+Onuron/Linux/Android-এ Vulkan হবে primary renderer যেখানে supported; iOS-এ Metal; software renderer CI/headless environment-এর জন্য। Existing Onuron `nilui-gpu`-কে first backend candidate হিসেবে reuse করা হবে।
 
 English
 
-Vulkan is the primary renderer on NilOS/Linux/Android where supported; Metal is primary on iOS; a software renderer provides CI/headless coverage. The existing NilOS `nilui-gpu` should be the first backend candidate rather than creating a second Vulkan UI stack.
+Vulkan is the primary renderer on Onuron/Linux/Android where supported; Metal is primary on iOS; a software renderer provides CI/headless coverage. The existing Onuron `nilui-gpu` should be the first backend candidate rather than creating a second Vulkan UI stack.
 
 NilLang/UI
    ↓
@@ -474,11 +474,11 @@ Backend
 
 বাংলা
 
-Cross-platform architecture-এর মূল হলো shared core + thin platform adapter। ArkUI-X-এর public documentation-এও shared ArkTS code-এর সঙ্গে platform-specific adaptation ও bridge layer-এর কথা বলা হয়েছে। NilX একই general architectural principle নেবে, কিন্তু নিজের runtime/ABI ব্যবহার করবে।
+Cross-platform architecture-এর মূল হলো shared core + thin platform adapter। ArkUI-X-এর public documentation-এও shared ArkTS code-এর সঙ্গে platform-specific adaptation ও bridge layer-এর কথা বলা হয়েছে। Alap একই general architectural principle নেবে, কিন্তু নিজের runtime/ABI ব্যবহার করবে।
 
 English
 
-The key to cross-platform architecture is shared core plus a thin platform adapter. ArkUI-X documentation explicitly describes shared application code with platform adaptation and a bridge layer. NilX follows that architectural principle but defines its own runtime and ABI.
+The key to cross-platform architecture is shared core plus a thin platform adapter. ArkUI-X documentation explicitly describes shared application code with platform adaptation and a bridge layer. Alap follows that architectural principle but defines its own runtime and ABI.
 
 interface Platform {
   init()
@@ -517,8 +517,8 @@ Android uses a Kotlin/Java bootstrap layer, a JNI/C ABI boundary, and the Nil Ru
 Android App
 ├── AndroidManifest.xml
 ├── Kotlin bootstrap
-├── libnilx_runtime.so
-├── libnilx_app.so
+├── libalap_runtime.so
+├── libalap_app.so
 └── assets/
 
 Activity
@@ -534,17 +534,17 @@ Vulkan/GLES
 
 বাংলা
 
-iOS-এ Xcode project generation করা হবে। NilX runtime/engine XCFramework হিসেবে embed হবে। UIViewController/scene lifecycle থেকে NilX app lifecycle-এ bridge করা হবে এবং Metal layer-এর মাধ্যমে rendering হবে।
+iOS-এ Xcode project generation করা হবে। Alap runtime/engine XCFramework হিসেবে embed হবে। UIViewController/scene lifecycle থেকে Alap app lifecycle-এ bridge করা হবে এবং Metal layer-এর মাধ্যমে rendering হবে।
 
 English
 
-iOS uses an Xcode-generated project. The NilX runtime/engine is distributed as an XCFramework. UIKit scene lifecycle is translated into the NilX lifecycle, and a Metal-backed surface provides rendering.
+iOS uses an Xcode-generated project. The Alap runtime/engine is distributed as an XCFramework. UIKit scene lifecycle is translated into the Alap lifecycle, and a Metal-backed surface provides rendering.
 
 Xcode App
   ↓
 App/Scene delegate
   ↓
-NilX iOS Adapter
+Alap iOS Adapter
   ↓
 Nil Runtime
   ↓
@@ -569,17 +569,17 @@ nil build linux --arch arm64
 
 
 
-## 19. NilOS port / NilOS Port
+## 19. Onuron port / Onuron Port
 
 বাংলা
 
-NilOS হবে NilX-এর reference platform। `nilui`/`nilui-gpu`, `nilrt`, `nilbus-client`, SELinux policy, permission broker এবং `nilpkg`-এর সঙ্গে direct integration হবে। App package `.nilapp` হিসেবে ship করবে।
+Onuron হবে Alap-এর reference platform। `nilui`/`nilui-gpu`, `nilrt`, `nilbus-client`, SELinux policy, permission broker এবং `nilpkg`-এর সঙ্গে direct integration হবে। App package `.nilax` হিসেবে ship করবে।
 
 English
 
-NilOS is the reference platform. NilX integrates directly with `nilui`/`nilui-gpu`, `nilrt`, `nilbus-client`, SELinux policy, the permission broker, and `nilpkg`. Applications are distributed as signed `.nilapp` packages.
+Onuron is the reference platform. Alap integrates directly with `nilui`/`nilui-gpu`, `nilrt`, `nilbus-client`, SELinux policy, the permission broker, and `nilpkg`. Applications are distributed as signed `.nilax` packages.
 
-myapp.nilapp/
+myapp.nilax/
 ├── manifest.json
 ├── app.nabc
 ├── ui.nui
@@ -647,7 +647,7 @@ entry: src/main.nil
 permissions:
   - network
 targets:
-  - nilos-arm64
+  - onuron-arm64
   - android-arm64
   - ios-arm64
   - linux-x86_64
@@ -667,11 +667,11 @@ nil create notes
 nil check
 nil test
 nil run --target linux
-nil run --target nilos
+nil run --target onuron
 nil build android
 nil build ios
 nil package
-nil install app.nilapp
+nil install app.nilax
 nil devices
 nil logs
 nil doctor
@@ -707,7 +707,7 @@ test matrix
 ├── linux-wayland
 ├── android-emulator
 ├── ios-simulator
-└── nilos-qemu
+└── onuron-qemu
 
 
 ## 26. Performance targets / Performance Targets
@@ -746,13 +746,13 @@ NilLang source
 
 বাংলা
 
-Prototype পর্যায়ে monorepo রাখা সবচেয়ে ভালো। Compiler এবং tooling Go-তে; runtime ও platform engine-এ Rust/C++/Swift/Kotlin প্রয়োজন অনুসারে থাকবে; NilOS-specific existing crates untouched থাকবে যতটা সম্ভব।
+Prototype পর্যায়ে monorepo রাখা সবচেয়ে ভালো। Compiler এবং tooling Go-তে; runtime ও platform engine-এ Rust/C++/Swift/Kotlin প্রয়োজন অনুসারে থাকবে; Onuron-specific existing crates untouched থাকবে যতটা সম্ভব।
 
 English
 
-A monorepo is preferable during the prototype phase. Compiler and tooling are implemented in Go; runtime and platform pieces can use Rust/C++/Swift/Kotlin where appropriate; existing NilOS crates remain intact wherever practical.
+A monorepo is preferable during the prototype phase. Compiler and tooling are implemented in Go; runtime and platform pieces can use Rust/C++/Swift/Kotlin where appropriate; existing Onuron crates remain intact wherever practical.
 
-nilx/
+alap/
 ├── cmd/
 │   ├── nil/
 │   └── nilc/
@@ -762,7 +762,7 @@ nilx/
 ├── gfx/
 ├── abi/
 ├── platform/
-│   ├── nilos/
+│   ├── onuron/
 │   ├── android/
 │   ├── ios/
 │   └── linux/
@@ -794,11 +794,11 @@ Package format: NILPKG v1
 
 বাংলা
 
-Roadmap-এর প্রথম লক্ষ্য হলো ভাষা + runtime; তারপর Linux UI; তারপর NilOS; তারপর Android; শেষে iOS। কারণ iOS build/signing ecosystem এবং device constraints prototype phase-এ early blocker না হওয়াই ভালো।
+Roadmap-এর প্রথম লক্ষ্য হলো ভাষা + runtime; তারপর Linux UI; তারপর Onuron; তারপর Android; শেষে iOS। কারণ iOS build/signing ecosystem এবং device constraints prototype phase-এ early blocker না হওয়াই ভালো।
 
 English
 
-The roadmap should stabilize language and runtime first, then Linux UI, then NilOS, then Android, and finally iOS. This keeps iOS signing/toolchain constraints from blocking the core platform early.
+The roadmap should stabilize language and runtime first, then Linux UI, then Onuron, then Android, and finally iOS. This keeps iOS signing/toolchain constraints from blocking the core platform early.
 
 
 ## 31. Reference application / Reference Application
@@ -832,16 +832,16 @@ app Counter {
 
 বাংলা
 
-NilX 1.0 বলা যাবে তখনই যখন একই source tree থেকে NilOS ARM64, Android ARM64, iOS ARM64 এবং Linux x86_64 build সফল হবে এবং reference app-এ UI/state semantics সামঞ্জস্যপূর্ণ থাকবে। Platform-specific differences documented এবং intentional হতে হবে।
+Alap 1.0 বলা যাবে তখনই যখন একই source tree থেকে Onuron ARM64, Android ARM64, iOS ARM64 এবং Linux x86_64 build সফল হবে এবং reference app-এ UI/state semantics সামঞ্জস্যপূর্ণ থাকবে। Platform-specific differences documented এবং intentional হতে হবে।
 
 English
 
-NilX 1.0 is acceptable only when one source tree can build a reference app for NilOS ARM64, Android ARM64, iOS ARM64, and Linux x86_64 with consistent UI/state semantics. Platform differences must be documented and intentional.
+Alap 1.0 is acceptable only when one source tree can build a reference app for Onuron ARM64, Android ARM64, iOS ARM64, and Linux x86_64 with consistent UI/state semantics. Platform differences must be documented and intentional.
 
 
 ## 33. তথ্যসূত্র / References
 
-1. NilOS repository: https://github.com/joysriramsarkar/nilos
+1. Onuron repository: https://github.com/joysriramsarkar/onuron
 
 2. ArkUI-X organization: https://github.com/arkui-x
 
@@ -865,9 +865,9 @@ Use 2 spaces for indentation. UTF-8 source. Files use LF line endings. Public AP
 
 ## Appendix B - Non-goals / ইচ্ছাকৃতভাবে যা করা হবে না
 
-• NilOS kernel-এর বিকল্প runtime বানানো নয়।
+• Onuron kernel-এর বিকল্প runtime বানানো নয়।
 
-• Android/iOS-এ পুরো NilOS emulation বানানো নয়।
+• Android/iOS-এ পুরো Onuron emulation বানানো নয়।
 
 • Full JavaScript dynamic semantics reproduce করা নয়।
 
@@ -880,4 +880,4 @@ Use 2 spaces for indentation. UTF-8 source. Files use LF line endings. Public AP
 
 ## Appendix C - Recommended first repository change / প্রথম repository change
 
-The first implementation PR should add `framework/nilx/` or an equivalent top-level subtree, wire a Go workspace for `nil` and `nilc`, define `spec/grammar.md`, add a minimal NABC VM, and ship a `hello` example that runs under a headless backend. Only after that should the existing NilUI GPU path be connected.
+The first implementation PR should add `framework/alap/` or an equivalent top-level subtree, wire a Go workspace for `nil` and `nilc`, define `spec/grammar.md`, add a minimal NABC VM, and ship a `hello` example that runs under a headless backend. Only after that should the existing NilUI GPU path be connected.
