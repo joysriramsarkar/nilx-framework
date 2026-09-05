@@ -1,0 +1,21 @@
+name: alap-enterprise-web
+version: 1.0.0
+type: web
+
+entry:
+  server: server.go
+  client: main.nil
+
+web:
+  ssr: true
+  hydration: true
+  radix_routing: true
+
+database:
+  driver: postgres
+  migrations: ./migrations
+
+targets:
+  - web
+  - server
+  - linux
