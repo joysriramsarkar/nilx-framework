@@ -1,0 +1,20 @@
+// Alap Web Application in Nilang
+import { App, Page, Button, Text, Column } from "alap/web"
+
+@Component
+component Counter {
+    @State count: i32 = 0
+
+    build() {
+        Column {
+            Text("Nilang Web Counter: " + count.toString())
+            Button("+ Increment") {
+                count = count + 1
+            }
+        }
+    }
+}
+
+fn main() {
+    print("Alap Web Client App Booted")
+}
